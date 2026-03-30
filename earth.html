@@ -38,28 +38,24 @@
     ];
     const INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 
-    function pad(n) { return String(n).padStart(2, "0"); }
-
-    function himawariUrl(offsetMinutes) {
-      const d = new Date(Date.now() - offsetMinutes * 60 * 1000);
-      const mm = Math.floor(d.getUTCMinutes() / 10) * 10;
-      return "https://himawari8.nict.go.jp/img/FULL_24h/1d/550/"
-        + d.getUTCFullYear() + "/" + pad(d.getUTCMonth() + 1) + "/" + pad(d.getUTCDate()) + "/"
-        + pad(d.getUTCHours()) + pad(mm) + "00_0_0.png";
-    }
-
-    function loadHimawari(offset, retries) {
-      const img = document.getElementById("img0");
-      img.onerror = retries < 6
-        ? function() { loadHimawari(offset + 10, retries + 1); }
-        : null;
-      img.src = himawariUrl(offset);
+    function loadHimawari() {
+      fetch("https://himawari8.nict.go.jp/img/FULL_24h/latest.json")
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          // data.date = "YYYY-MM-DD HH:MM:SS"
+          const parts = data.date.replace(" ", "/").replace(/-/g, "/").replace(/:/g, "").split("/");
+          // parts = [YYYY, MM, DD, HHMMSS]
+          const url = "https://himawari8.nict.go.jp/img/D531106/1d/550/"
+            + parts[0] + "/" + parts[1] + "/" + parts[2] + "/"
+            + parts[3] + "_0_0.png";
+          document.getElementById("img0").src = url;
+        });
     }
 
     function refresh() {
       const t = Date.now();
-      loadHimawari(30, 0);
-      STATIC_SOURCES.forEach((src, i) => {
+      loadHimawari();
+      STATIC_SOURCES.forEach(function(src, i) {
         document.getElementById("img" + (i + 1)).src = src + "?t=" + t;
       });
     }
