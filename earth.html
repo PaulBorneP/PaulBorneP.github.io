@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Earth Live</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 16px;
+      padding: 16px;
+    }
+    .earth {
+      flex: 1;
+      max-width: 33%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+    }
+    @media (max-width: 700px) {
+      body { flex-direction: column; }
+      .earth { max-width: 100%; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <img class="earth" id="img0" alt="Himawari (JMA)">
+  <img class="earth" id="img1" alt="GOES-19 (NOAA)">
+  <img class="earth" id="img2" alt="Meteosat (EUMETSAT)">
+
+  <script>
+    const SOURCES = [
+      "https://www.ospo.noaa.gov/dimg/jma/fd/vis/10.gif",
+      "https://cdn.star.nesdis.noaa.gov/GOES19/ABI/FD/GEOCOLOR/1808x1808.jpg",
+      "https://eumetview.eumetsat.int/static-images/latestImages/EUMETSAT_MSG_RGBNatColourEnhncd_FullResolution.jpg"
+    ];
+    const INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+
+    function refresh() {
+      const t = Date.now();
+      SOURCES.forEach((src, i) => {
+        document.getElementById("img" + i).src = src + "?t=" + t;
+      });
+    }
+
+    refresh();
+    setInterval(refresh, INTERVAL_MS);
+  </script>
+</body>
+</html>
