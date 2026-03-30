@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Earth Live</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { background: #000; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      background: #000;
+    }
+
     body {
       display: flex;
       align-items: flex-start;
@@ -14,22 +24,32 @@
       gap: 4px;
       padding: 4px;
     }
+
     .earth {
       flex: 1 1 0;
       min-width: 0;
       aspect-ratio: 1 / 1;
       object-fit: contain;
     }
+
     @media (max-width: 700px) {
-      body { flex-direction: column; }
-      .earth { width: 100%; aspect-ratio: 1 / 1; }
+      body {
+        flex-direction: column;
+      }
+
+      .earth {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+      }
     }
   </style>
 </head>
+
 <body>
-  <img class="earth" id="img0" alt="Himawari (NICT)">
   <img class="earth" id="img1" alt="GOES-19 (NOAA)">
   <img class="earth" id="img2" alt="Meteosat (EUMETSAT)">
+  <img class="earth" id="img0" alt="Himawari (NICT)">
+
 
   <script>
     const STATIC_SOURCES = [
@@ -53,7 +73,7 @@
       var img = document.getElementById("img0");
       var url = himawariUrlFromDate(new Date(Date.now() - offsetMin * 60 * 1000));
       img.onerror = retries < 6
-        ? function() { loadHimawariByTime(offsetMin + 10, retries + 1); }
+        ? function () { loadHimawariByTime(offsetMin + 10, retries + 1); }
         : null;
       img.src = url;
     }
@@ -63,19 +83,19 @@
       var proxy = "https://corsproxy.io/?url=";
       var target = "https://himawari8.nict.go.jp/img/FULL_24h/latest.json";
       fetch(proxy + encodeURIComponent(target))
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
           // data.date = "YYYY-MM-DD HH:MM:SS"
           var d = new Date(data.date.replace(" ", "T") + "Z");
           document.getElementById("img0").src = himawariUrlFromDate(d);
         })
-        .catch(function() { loadHimawariByTime(20, 0); });
+        .catch(function () { loadHimawariByTime(20, 0); });
     }
 
     function refresh() {
       const t = Date.now();
       loadHimawari();
-      STATIC_SOURCES.forEach(function(src, i) {
+      STATIC_SOURCES.forEach(function (src, i) {
         document.getElementById("img" + (i + 1)).src = src + "?t=" + t;
       });
     }
@@ -84,4 +104,5 @@
     setInterval(refresh, INTERVAL_MS);
   </script>
 </body>
+
 </html>
