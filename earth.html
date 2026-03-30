@@ -38,18 +38,38 @@
     ];
     const INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 
+    function pad(n) { return String(n).padStart(2, "0"); }
+
+    // Build URL from a UTC Date object
+    function himawariUrlFromDate(d) {
+      const mm = Math.floor(d.getUTCMinutes() / 10) * 10;
+      return "https://himawari8.nict.go.jp/img/D531106/1d/550/"
+        + d.getUTCFullYear() + "/" + pad(d.getUTCMonth() + 1) + "/" + pad(d.getUTCDate()) + "/"
+        + pad(d.getUTCHours()) + pad(mm) + "00_0_0.png";
+    }
+
+    // Fallback: compute from local clock with retry
+    function loadHimawariByTime(offsetMin, retries) {
+      var img = document.getElementById("img0");
+      var url = himawariUrlFromDate(new Date(Date.now() - offsetMin * 60 * 1000));
+      img.onerror = retries < 6
+        ? function() { loadHimawariByTime(offsetMin + 10, retries + 1); }
+        : null;
+      img.src = url;
+    }
+
+    // Primary: read latest.json via CORS proxy to get the exact timestamp
     function loadHimawari() {
-      fetch("https://himawari8.nict.go.jp/img/FULL_24h/latest.json")
+      var proxy = "https://corsproxy.io/?url=";
+      var target = "https://himawari8.nict.go.jp/img/FULL_24h/latest.json";
+      fetch(proxy + encodeURIComponent(target))
         .then(function(r) { return r.json(); })
         .then(function(data) {
           // data.date = "YYYY-MM-DD HH:MM:SS"
-          const parts = data.date.replace(" ", "/").replace(/-/g, "/").replace(/:/g, "").split("/");
-          // parts = [YYYY, MM, DD, HHMMSS]
-          const url = "https://himawari8.nict.go.jp/img/D531106/1d/550/"
-            + parts[0] + "/" + parts[1] + "/" + parts[2] + "/"
-            + parts[3] + "_0_0.png";
-          document.getElementById("img0").src = url;
-        });
+          var d = new Date(data.date.replace(" ", "T") + "Z");
+          document.getElementById("img0").src = himawariUrlFromDate(d);
+        })
+        .catch(function() { loadHimawariByTime(20, 0); });
     }
 
     function refresh() {
