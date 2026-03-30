@@ -6,48 +6,61 @@
   <title>Earth Live</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      background: #000;
-      height: 100%;
-    }
+    html, body { background: #000; }
     body {
       display: flex;
-      align-items: stretch;
+      align-items: flex-start;
       justify-content: center;
-      gap: 8px;
-      padding: 8px;
+      gap: 4px;
+      padding: 4px;
     }
     .earth {
-      flex: 1;
+      flex: 1 1 0;
       min-width: 0;
-      width: 33%;
-      height: calc(100vh - 16px);
+      aspect-ratio: 1 / 1;
       object-fit: contain;
-      object-position: center;
     }
     @media (max-width: 700px) {
-      body { flex-direction: column; align-items: center; }
-      .earth { width: 100%; height: auto; }
+      body { flex-direction: column; }
+      .earth { width: 100%; aspect-ratio: 1 / 1; }
     }
   </style>
 </head>
 <body>
-  <img class="earth" id="img0" alt="Himawari (JMA)">
+  <img class="earth" id="img0" alt="Himawari (NICT)">
   <img class="earth" id="img1" alt="GOES-19 (NOAA)">
   <img class="earth" id="img2" alt="Meteosat (EUMETSAT)">
 
   <script>
-    const SOURCES = [
-      "https://www.ospo.noaa.gov/dimg/jma/fd/vis/10.gif",
+    const STATIC_SOURCES = [
       "https://cdn.star.nesdis.noaa.gov/GOES19/ABI/FD/GEOCOLOR/1808x1808.jpg",
       "https://eumetview.eumetsat.int/static-images/latestImages/EUMETSAT_MSG_RGBNatColourEnhncd_FullResolution.jpg"
     ];
     const INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 
+    function pad(n) { return String(n).padStart(2, "0"); }
+
+    function himawariUrl(offsetMinutes) {
+      const d = new Date(Date.now() - offsetMinutes * 60 * 1000);
+      const mm = Math.floor(d.getUTCMinutes() / 10) * 10;
+      return "https://himawari8.nict.go.jp/img/FULL_24h/1d/550/"
+        + d.getUTCFullYear() + "/" + pad(d.getUTCMonth() + 1) + "/" + pad(d.getUTCDate()) + "/"
+        + pad(d.getUTCHours()) + pad(mm) + "00_0_0.png";
+    }
+
+    function loadHimawari(offset, retries) {
+      const img = document.getElementById("img0");
+      img.onerror = retries < 6
+        ? function() { loadHimawari(offset + 10, retries + 1); }
+        : null;
+      img.src = himawariUrl(offset);
+    }
+
     function refresh() {
       const t = Date.now();
-      SOURCES.forEach((src, i) => {
-        document.getElementById("img" + i).src = src + "?t=" + t;
+      loadHimawari(30, 0);
+      STATIC_SOURCES.forEach((src, i) => {
+        document.getElementById("img" + (i + 1)).src = src + "?t=" + t;
       });
     }
 
