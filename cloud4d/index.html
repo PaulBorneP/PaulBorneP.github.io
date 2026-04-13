@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloud4D — Estimating Cloud Properties at High Resolution</title>
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script
+    src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Source+Code+Pro:wght@400;500&display=swap');
+
+    :root {
+      --blue: #4472C4;
+      --purple: #7B68EE;
+      --orange: #ED7D31;
+      --green: #70AD47;
+      --red: #C0392B;
+      --teal: #00897B;
+      --muted: #7f8c8d;
+    }
+
+    .reveal {
+      font-family: 'Crimson Pro', Georgia, 'Times New Roman', serif;
+      font-size: 32px;
+      font-weight: 400;
+      color: #2c3e50;
+    }
+
+    .reveal h1,
+    .reveal h2,
+    .reveal h3,
+    .reveal h4 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 600;
+      color: #1a1a2e;
+      text-transform: none;
+      letter-spacing: -0.01em;
+    }
+
+    .reveal h1 {
+      font-size: 2.2em;
+      margin-bottom: 0.2em;
+    }
+
+    .reveal h2 {
+      font-size: 1.45em;
+      margin-bottom: 0.25em;
+    }
+
+    .reveal h3 {
+      font-size: 1.05em;
+      margin-bottom: 0.15em;
+    }
+
+    .reveal p,
+    .reveal li {
+      line-height: 1.5;
+      font-size: 0.82em;
+    }
+
+    .reveal ul {
+      margin-left: 0.5em;
+    }
+
+    .reveal .slides section {
+      text-align: left;
+      padding: 42px 50px 30px 50px;
+      display: flex !important;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    .reveal .slides section.center-slide {
+      text-align: center;
+      align-items: center;
+    }
+
+    /* Timeline */
+    #timeline-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 34px;
+      background: rgba(255, 255, 255, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      border-bottom: 1px solid #e8e8e8;
+      backdrop-filter: blur(8px);
+    }
+
+    .tl-section {
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      height: 100%;
+      position: relative;
+      cursor: default;
+    }
+
+    .tl-section .tl-label {
+      font-family: 'Crimson Pro', serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: #bbb;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      transition: color 0.3s;
+    }
+
+    .tl-section.active .tl-label {
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .tl-section.past .tl-label {
+      color: #888;
+    }
+
+    .tl-section::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2.5px;
+      background: transparent;
+      transition: background 0.3s;
+    }
+
+    .tl-section.active::after {
+      background: var(--blue);
+    }
+
+    .tl-section.past::after {
+      background: #ccc;
+    }
+
+    .tl-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #ccc;
+      margin: 0 10px;
+      flex-shrink: 0;
+    }
+
+    .tl-section:first-child .tl-dot {
+      display: none;
+    }
+
+    /* Title */
+    .title-slide h1 {
+      font-size: 2.2em;
+      line-height: 1.12;
+      margin-bottom: 0.08em;
+    }
+
+    .title-slide .subtitle {
+      font-size: 1.05em;
+      color: #666;
+      font-style: italic;
+      margin-bottom: 0.5em;
+    }
+
+    .title-slide .authors {
+      font-size: 0.7em;
+      color: #555;
+      margin-bottom: 0.15em;
+    }
+
+    .title-slide .affiliation {
+      font-size: 0.58em;
+      color: #888;
+    }
+
+    .title-slide .venue {
+      font-size: 0.62em;
+      color: var(--blue);
+      font-weight: 600;
+      margin-top: 0.3em;
+    }
+
+    /* Highlight box */
+    .highlight-box {
+      background: linear-gradient(135deg, #f8f9fa, #eef1f5);
+      border-left: 3px solid var(--blue);
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin: 8px 0;
+      font-size: 0.78em;
+    }
+
+    .highlight-box.green {
+      border-left-color: var(--green);
+      background: linear-gradient(135deg, #f8fdf8, #eef5ee);
+    }
+
+    .highlight-box.orange {
+      border-left-color: var(--orange);
+      background: linear-gradient(135deg, #fefaf6, #fdf3e8);
+    }
+
+    .highlight-box.red {
+      border-left-color: var(--red);
+      background: linear-gradient(135deg, #fef6f6, #fdeaea);
+    }
+
+    /* Pipeline */
+    .pipeline-step {
+      display: inline-block;
+      padding: 6px 13px;
+      border-radius: 6px;
+      font-size: 0.7em;
+      font-weight: 600;
+      margin: 3px;
+      line-height: 1.3;
+    }
+
+    .step-blue {
+      background: #e8f0fe;
+      color: var(--blue);
+    }
+
+    .step-purple {
+      background: #f0ecfe;
+      color: var(--purple);
+    }
+
+    .step-orange {
+      background: #fef0e0;
+      color: var(--orange);
+    }
+
+    .step-green {
+      background: #edf7ed;
+      color: var(--green);
+    }
+
+    .step-red {
+      background: #fef6f6;
+      color: var(--red);
+    }
+
+    .step-teal {
+      background: #e0f2f1;
+      color: var(--teal);
+    }
+
+    .arrow {
+      font-size: 1.1em;
+      color: #bbb;
+      vertical-align: middle;
+      margin: 0 2px;
+    }
+
+    /* Image */
+    .img-grid {
+      display: grid;
+      gap: 8px;
+      margin: 8px 0;
+    }
+
+    .img-grid img {
+      width: 100%;
+      border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .label {
+      text-align: center;
+      font-size: 0.58em;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    /* Two-col */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Section divider */
+    .section-divider h2 {
+      font-size: 1.8em;
+      color: #2c3e50;
+    }
+
+    /* Table */
+    .reveal table {
+      font-size: 0.6em;
+      border-collapse: collapse;
+      margin: 8px auto;
+    }
+
+    .reveal table th {
+      background: #f0f4f8;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-bottom: 2px solid #ddd;
+    }
+
+    .reveal table td {
+      padding: 3px 8px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .reveal table .best {
+      font-weight: 700;
+      color: var(--blue);
+    }
+
+    .reveal table .second {
+      text-decoration: underline;
+    }
+
+    .reveal table .ours-row {
+      background: #f0f7ff;
+    }
+
+    .katex {
+      font-size: 0.95em;
+    }
+
+    .equation {
+      text-align: center;
+      margin: 14px 0;
+    }
+
+    /* Loss terms */
+    .loss-term {
+      display: flex;
+      align-items: flex-start;
+      margin: 9px 0;
+      gap: 12px;
+    }
+
+    .loss-term .icon {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.58em;
+      font-weight: 700;
+      color: white;
+    }
+
+    .loss-term .desc {
+      font-size: 0.76em;
+    }
+
+    .loss-term .desc strong {
+      display: block;
+      margin-bottom: 1px;
+    }
+
+    /* Method step cards */
+    .method-step-card {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 7px 0;
+      border: 1px solid #e8ecf0;
+    }
+
+    .method-step-card h4 {
+      font-size: 0.78em;
+      margin: 0 0 5px 0;
+    }
+
+    .method-step-card p {
+      font-size: 0.67em;
+      margin: 0;
+      color: #555;
+    }
+
+    .contrib-item {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 7px 0;
+      border: 1px solid #e8ecf0;
+    }
+
+    .contrib-item h4 {
+      font-size: 0.78em;
+      margin: 0 0 3px 0;
+      color: var(--blue);
+    }
+
+    .contrib-item p {
+      font-size: 0.67em;
+      margin: 0;
+      color: #555;
+    }
+
+    .reveal .slide-number {
+      font-family: 'Crimson Pro', serif;
+      font-size: 13px;
+      color: #bbb;
+    }
+
+    /* Step highlight */
+    .step-active {
+      opacity: 1 !important;
+    }
+
+    .step-dim {
+      opacity: 0.25 !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="timeline-bar">
+    <div class="tl-section"><span class="tl-label">Introduction</span></div>
+    <div class="tl-section">
+      <div class="tl-dot"></div><span class="tl-label">Vocabulary</span>
+    </div>
+    <div class="tl-section">
+      <div class="tl-dot"></div><span class="tl-label">Method</span>
+    </div>
+    <div class="tl-section">
+      <div class="tl-dot"></div><span class="tl-label">Dataset</span>
+    </div>
+    <div class="tl-section">
+      <div class="tl-dot"></div><span class="tl-label">Results</span>
+    </div>
+    <div class="tl-section">
+      <div class="tl-dot"></div><span class="tl-label">Questions</span>
+    </div>
+  </div>
+
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- ============ SLIDE 0: Title ============ -->
+      <section class="center-slide title-slide">
+        <h1>Cloud4D</h1>
+        <div class="subtitle">Estimating Cloud Properties at a High Spatial and
+          Temporal Resolution</div>
+        <div class="authors">
+          <strong>Jacob Lin</strong><sup>1</sup> &nbsp;&middot;&nbsp;
+          Edward Gryspeerdt<sup>2</sup> &nbsp;&middot;&nbsp;
+          Ronald Clark<sup>1</sup>
+        </div>
+        <div class="affiliation"><sup>1</sup>University of Oxford
+          &nbsp;&nbsp;&nbsp; <sup>2</sup>Imperial College London</div>
+        <div class="venue">NeurIPS 2025 &mdash; Spotlight</div>
+      </section>
+
+      <!-- ============ SLIDE 1: Introduction / Teaser ============ -->
+      <section>
+        <h2>Overview</h2>
+        <!-- Dark panel: shrink-wraps to content width -->
+        <div style="display:flex;justify-content:center;margin-top:8px;">
+          <div
+            style="display:inline-flex;align-items:center;gap:14px;background:#000;border-radius:8px;padding:10px 14px;height:270px;box-sizing:border-box;">
+            <picture style="height:100%;display:block;flex-shrink:0;">
+              <source srcset="cloud4d_setup.webp" type="image/webp">
+              <img src="cloud4d_setup.png"
+                style="height:100%;width:auto;display:block;border-radius:4px;">
+            </picture>
+            <span
+              style="color:#aaa;font-size:1.4em;flex-shrink:0;">&rarr;</span>
+            <div
+              style="position:relative;height:100%;display:inline-flex;align-items:flex-start;flex-shrink:0;">
+              <video autoplay muted loop playsinline
+                style="height:100%;width:auto;display:block;border-radius:4px;">
+                <source
+                  src="cloud4d_plane_scan.mp4"
+                  type="video/mp4">
+              </video>
+              <!-- overlay covers only the video width, not the wrapper -->
+              <div
+                style="position:absolute;top:0;left:0;right:0;height:50px;background:#000;border-radius:4px 4px 0 0;pointer-events:none;">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Key idea: clean centered statement -->
+        <div
+          style="margin-top:12px;display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,#f0faf0,#e4f5e4);border-radius:6px;padding:14px 20px;border:1px solid #a8d5a8;">
+          <span style="font-size:1.6em;flex-shrink:0;">&#9729;</span>
+          <p style="margin:0;font-size:0.78em;line-height:1.5;color:#2c3e50;">
+            Cloud4D estimates physically-realistic 3D cloud fields using
+            ground-based cameras at 25 m spatial and 5 s temporal
+            resolution.
+          </p>
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 2: Vocabulary ============ -->
+      <section>
+        <h2>Cloud Vocabulary</h2>
+        <div class="two-col">
+          <div style="display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 420 310" style="width:100%;max-width:400px;"
+              xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <marker id="ax" markerWidth="8" markerHeight="6" refX="8"
+                  refY="3" orient="auto">
+                  <path d="M0,0 L8,3 L0,6" fill="#888" />
+                </marker>
+              </defs>
+
+              <!-- Ground -->
+              <line x1="55" y1="278" x2="400" y2="278" stroke="#aaa"
+                stroke-width="1.5" />
+              <text x="228" y="295" text-anchor="middle"
+                font-family="Crimson Pro" font-size="12"
+                fill="#aaa">Ground</text>
+
+              <!-- Height axis -->
+              <line x1="55" y1="275" x2="55" y2="42" stroke="#888"
+                stroke-width="1.5" marker-end="url(#ax)" />
+              <text x="52" y="38" text-anchor="middle" font-family="Crimson Pro"
+                font-size="11" fill="#888">z</text>
+
+              <!-- 2D Cloud blob (always visible): flat bottom at y=210 -->
+              <path
+                d="M 90,210 Q 72,210 68,196 Q 64,178 82,166 Q 74,144 96,136 Q 103,110 133,108 Q 146,88 178,95 Q 198,78 228,90 Q 252,78 276,96 Q 303,96 316,120 Q 340,128 336,158 Q 346,182 324,210 Z"
+                fill="#b3d9ff" stroke="#4472C4" stroke-width="1.8"
+                opacity="0.75" />
+
+              <!-- CBH line (fragment 1) -->
+              <g class="fragment" data-fragment-index="1">
+                <line x1="55" y1="210" x2="375" y2="210" stroke="#ED7D31"
+                  stroke-width="1.5" stroke-dasharray="6,3" />
+                <text x="381" y="222" font-family="Crimson Pro"
+                  font-weight="700" font-size="13" fill="#ED7D31">CBH</text>
+              </g>
+
+              <!-- CTH line (fragment 2) -->
+              <g class="fragment" data-fragment-index="2">
+                <line x1="55" y1="85" x2="375" y2="85" stroke="#70AD47"
+                  stroke-width="1.5" stroke-dasharray="6,3" />
+                <text x="381" y="104" font-family="Crimson Pro"
+                  font-weight="700" font-size="13" fill="#70AD47">CTH</text>
+              </g>
+
+              <!-- LWC cube (fragment 3): x=210→234, center 222 -->
+              <g class="fragment" data-fragment-index="3">
+                <polygon points="210,152 222,146 234,152 222,158" fill="#cce4ff"
+                  stroke="#4472C4" stroke-width="1" />
+                <polygon points="210,152 222,158 222,170 210,164" fill="#6699cc"
+                  stroke="#4472C4" stroke-width="1" />
+                <polygon points="222,158 234,152 234,164 222,170" fill="#4472C4"
+                  stroke="#4472C4" stroke-width="1" />
+                <text x="222" y="186" text-anchor="middle"
+                  font-family="Crimson Pro" font-weight="700" font-size="11"
+                  fill="#1a3a6e">LWC</text>
+              </g>
+
+              <!-- LWP column (fragment 4): x=210→234, y=85(CTH)→210(CBH) -->
+              <g class="fragment" data-fragment-index="4">
+                <rect x="210" y="85" width="24" height="125" fill="#4472C4"
+                  opacity="0.15" rx="2" />
+                <rect x="210" y="85" width="24" height="125" fill="none"
+                  stroke="#4472C4" stroke-width="1" stroke-dasharray="3,2"
+                  opacity="0.45" rx="2" />
+                <line x1="248" y1="90" x2="248" y2="205" stroke="#4472C4"
+                  stroke-width="1" opacity="0.55" marker-start="url(#arrow)"
+                  marker-end="url(#arrow)" />
+
+                <defs>
+                  <marker id="arrow" markerWidth="10" markerHeight="10" refX="5"
+                    refY="3" orient="auto-start-reverse">
+                    <polygon points="0 0, 10 3, 0 6" fill="#4472C4"
+                      opacity="0.55" />
+                  </marker>
+                </defs>
+                <text x="258" y="153" font-family="Crimson Pro"
+                  font-weight="600" font-size="11"
+                  fill="#4472C4">&Delta;h</text>
+                <text x="210" y="75" font-family="Crimson Pro" font-weight="600"
+                  font-size="11" fill="#4472C4">LWP</text>
+              </g>
+            </svg>
+          </div>
+
+          <div>
+            <!-- CBH card: fragment 1 -->
+            <div class="method-step-card fragment" data-fragment-index="1">
+              <h4 style="color:var(--orange);">CBH &mdash; Cloud Base Height
+              </h4>
+              <p>Height of the bottom of the cloud layer.</p>
+            </div>
+            <!-- CTH card: fragment 2 -->
+            <div class="method-step-card fragment" data-fragment-index="2">
+              <h4 style="color:var(--green);">CTH &mdash; Cloud Top Height</h4>
+              <p>Height of the top of the cloud layer.</p>
+            </div>
+            <!-- LWC card: fragment 3 -->
+            <div class="method-step-card fragment" data-fragment-index="3">
+              <h4 style="color:var(--blue);">LWC (&rho;) &mdash; Liquid Water
+                Content
+              </h4>
+              <p>Mass of liquid water per unit volume (g m<sup>&minus;3</sup>).
+                The 3D field they estimate.</p>
+            </div>
+            <!-- LWP card: fragment 4 -->
+            <div class="method-step-card fragment" data-fragment-index="4">
+              <h4 style="color:var(--blue);">LWP &mdash; Liquid Water Path</h4>
+              <p>Vertical integral of LWC through the cloud column (kg
+                m<sup>&minus;2</sup>).</p>
+              <div class="equation" style="margin-top:6px;font-size:0.9em;">
+                $\text{LWP}(x,y) = \int_{\text{CBH}}^{\text{CTH}} \text{LWC}(x,
+                y, z) \, dz$
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
+      <!-- ============ SLIDE 4: Method Overview ============ -->
+      <section>
+        <h2>Method Overview</h2>
+        <div style="text-align:center;margin:6px 0;">
+          <img src="fig/method_overview_full.svg"
+            style="max-width:100%;width:960px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        </div>
+        <g class="fragment" data-fragment-index="1">
+          <div
+            style="margin-top:14px;display:flex;flex-direction:column;gap:11px;">
+            <div style="display:flex;align-items:center;gap:16px;">
+              <span class="pipeline-step step-blue"
+                style="width:220px;text-align:center;flex-shrink:0;padding:8px 13px;">Step
+                a): Cloud Layer Model</span>
+              <span style="font-size:0.76em;">Homography maps Dinov2 features
+                from cameras to 18 height planes<br>
+                &rarr; flatten them vertically
+                &rarr; predict <strong>LWP, CBH, &Delta;h</strong> per (x,
+                y) column</span>
+            </div>
+        </g>
+        <g class="fragment" data-fragment-index="2">
+
+          <div style="display:flex;align-items:center;gap:16px;">
+            <span class="pipeline-step step-blue"
+              style="width:220px;text-align:center;flex-shrink:0;padding:8px 13px;">Step
+              b): 3D Refinement</span>
+            <span style="font-size:0.76em;">Lift 2.5D representation (LWP, CBH,
+              &Delta;h) &rarr; initial 3D field
+              &rarr; <strong>sparse transformer</strong> refines full LWC
+              volume</span>
+          </div>
+        </g>
+        <g class="fragment" data-fragment-index="3">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <span class="pipeline-step step-red"
+              style="width:220px;text-align:center;flex-shrink:0;padding:8px 13px;">Step
+              c): Wind Retrieval</span>
+            <span style="font-size:0.76em;">Track LWC horizontal slices over
+              time (CoTracker3) &rarr; <strong>height-varying wind
+                profile</strong></span>
+          </div>
+        </g>
+
+    </div>
+    </section>
+
+    <!-- ============ SLIDE 5: Method Step 1 ============ -->
+    <section>
+      <h2>Step 1: Cloud Layer Model</h2>
+      <!-- method_overview_a.svg with annotation callouts -->
+      <div style="position:relative;margin:4px 0 2px 0;">
+        <img src="fig/method_overview_a.svg"
+          style="width:100%;max-height:215px;object-fit:contain;display:block;">
+        <!-- Annotation callouts — appear one by one -->
+        <div style="display:flex;margin-top:4px;gap:6px;align-items:stretch;">
+          <!-- Purple box: text row + full-width image row -->
+          <div class="fragment" data-fragment-index="1" style="flex:0 0 auto;width:28%;background:#f0ecfe;border-left:3px solid #7B68EE;border-radius:4px;padding:4px 8px;font-size:0.6em;color:#4a3a9e;display:flex;flex-direction:column;">
+            <div><strong>DINOv2 + LoftUp (+ projection)</strong><br>frozen feature extractor, followed by a learnable projection to reduce number of channels</div>
+            <div style="margin-top:4px;flex:1;display:flex;align-items:center;justify-content:center;">
+              <img src="dino.svg" style="width:100%;object-fit:contain;">
+            </div>
+          </div>
+          <!-- Orange box: text row + labelled equation row + full-width image row -->
+          <div class="fragment" data-fragment-index="2" style="flex:0 0 auto;width:38%;background:#fef0e0;border-left:3px solid #ED7D31;border-radius:4px;padding:4px 8px;font-size:0.6em;color:#8a4400;display:flex;flex-direction:column;">
+            <div><strong>Cloud Homography (+AdaLN)</strong><br>projects features onto Z=18 horizontal planes (400&ndash;3800 m). Followed by AdaLN conditioned on height.</div>
+            <div style="margin-top:4px;text-align:center;font-size:0.92em;">$\begin{bmatrix}x\\y\\1\end{bmatrix}\sim\!\overbrace{\left(\mathbf{R}_i-\dfrac{\mathbf{t}_i\mathbf{n}^\top}{d}\right)\mathbf{K}_i^{-1}}^{\mathcal{H}}\begin{bmatrix}u_i\\v_i\\1\end{bmatrix}$</div>
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+              <img src="homeo.svg" style="width:100%;object-fit:contain;">
+            </div>
+          </div>
+          <!-- Green column: two fragments stacked -->
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+            <div class="fragment" data-fragment-index="3" style="background:#edf7ed;border-left:3px solid #70AD47;border-radius:4px;padding:4px 8px;font-size:0.6em;color:#2d6a0a;">
+              <strong>2D CNN head</strong><br>predicts LWP, CBH, &Delta;h per (x,y) column. $\mathcal{L}_{2D} = \mathcal{L}_{\text{LWP}} + \lambda \, \mathcal{L}_{\text{CBH}} + \lambda \, \mathcal{L}_{\Delta h}$
+            </div>
+            <div class="fragment" data-fragment-index="4" style="background:#edf7ed;border-left:3px solid #70AD47;border-radius:4px;padding:4px 8px;font-size:0.6em;color:#2d6a0a;">
+              All losses are <strong>L1 losses</strong> to enforce sparsity.
+              $\lambda = 0.1$ scales CBH and &Delta;h losses to similar ranges as LWP.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 6: Method Step 2 ============ -->
+    <section>
+      <h2>Step 2: 3D Refinement</h2>
+      <!-- method_overview_b.svg: badge horizontal, overlapping left edge -->
+      <div style="position:relative;margin-bottom:6px;">
+        <img src="fig/method_overview_b.svg"
+          style="width:100%;max-height:150px;object-fit:contain;display:block;">
+        <div style="position:absolute;top:15%;left:0;transform:translateY(-50%);background:linear-gradient(135deg,#fefaf6,#fdf3e8);border-left:3px solid #ED7D31;border-radius:4px;padding:3px 9px;font-size:0.56em;color:#8a4400;font-weight:600;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,0.10);">
+          step a) pipeline with frozen weights
+        </div>
+      </div>
+      <!-- Boxes: left column = two stacked orange boxes; right = blue Sparse Transformer -->
+      <div style="display:flex;gap:10px;margin-top:4px;align-items:stretch;">
+
+        <!-- Left column: two orange boxes stacked -->
+        <div style="flex:2;display:flex;flex-direction:column;gap:6px;">
+
+          <!-- Orange box 1: SVG LEFT, text+equation RIGHT -->
+          <div class="fragment" data-fragment-index="1" style="background:linear-gradient(135deg,#fefaf6,#fdf3e8);border-left:3px solid #ED7D31;border-radius:4px;padding:8px 12px;display:flex;align-items:center;gap:10px;">
+            <!-- LWC profile SVG — left, big, labels fully visible -->
+            <svg viewBox="0 0 155 145" style="width:250px;flex-shrink:0;" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <marker id="arr2b" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto">
+                  <path d="M0,0 L6,2.5 L0,5" fill="#888" />
+                </marker>
+              </defs>
+              <line x1="30" y1="122" x2="112" y2="122" stroke="#888" stroke-width="1.2" />
+              <line x1="30" y1="122" x2="30" y2="12" stroke="#888" stroke-width="1.2" marker-end="url(#arr2b)" />
+              <text x="71" y="135" text-anchor="middle" font-family="Crimson Pro" font-size="9" fill="#4472C4">LWC</text>
+              <text x="18" y="72" text-anchor="middle" font-family="Crimson Pro" font-size="9" fill="#888" transform="rotate(-90,18,72)">height</text>
+              <!-- CBH dashed line -->
+              <line x1="27" y1="97" x2="112" y2="97" stroke="#ED7D31" stroke-width="0.8" stroke-dasharray="3,2" />
+              <text x="115" y="100" font-family="Crimson Pro" font-size="8" fill="#ED7D31">CBH</text>
+              <!-- CTH dashed line -->
+              <line x1="27" y1="32" x2="112" y2="32" stroke="#70AD47" stroke-width="0.8" stroke-dasharray="3,2" />
+              <text x="115" y="35" font-family="Crimson Pro" font-size="8" fill="#70AD47">CTH</text>
+              <!-- Triangle: point at CBH, wide at CTH -->
+              <polygon points="30,97 30,32 105,32" fill="#b3d9ff" stroke="#4472C4" stroke-width="1.2" opacity="0.65" />
+              <text x="40" y="52" font-family="Crimson Pro" font-size="8" fill="#4472C4" font-weight="600">LWP</text>
+            </svg>
+            <!-- Text + equation RIGHT -->
+            <div style="flex:1;">
+              <strong style="font-size:0.7em;color:#8a4400;">Lifting 2.5D &rarr; 3D</strong>
+              <div style="font-size:0.62em;margin-top:4px;">
+                Distribute LWP along height with a linear profile (increasing toward cloud top). <br> <br>
+
+                <div style="margin-top:5px;text-align:center;font-size:0.92em;">
+                  $\hat{\rho}'^{(x,y,z)} = \dfrac{\text{LWP}}{\Delta h} \cdot \dfrac{2(zs_z - \text{CBH})}{\Delta h}$
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Orange box 2: Discard text LEFT, SVG RIGHT -->
+          <div class="fragment" data-fragment-index="2" style="background:linear-gradient(135deg,#fefaf6,#fdf3e8);border-left:3px solid #ED7D31;border-radius:4px;padding:8px 12px;display:flex;align-items:center;gap:10px;">
+            <div style="font-size:0.62em;flex:1;">
+              Discard empty voxels &rarr; <strong>sparse structure</strong>
+              ($M \ll N_x N_y N_z$)
+            </div>
+        
+          </div>
+
+        </div>
+
+        <!-- Right column: Sparse Transformer — narrower -->
+        <div class="fragment" data-fragment-index="3" style="flex:1;background:linear-gradient(135deg,#f0f4ff,#e8f0fe);border-left:3px solid #4472C4;border-radius:4px;padding:8px 12px;">
+          <strong style="font-size:0.7em;color:#2a4a8a;">Sparse Transformer</strong>
+          <ul style="font-size:0.62em;margin:4px 0 0 1em;color:#333;">
+            <li>Concatenate sparse voxels with backprojected DINOv2 features</li>
+            <li>Softmax along height &rarr; scale to preserve original LWP</li>
+          </ul>
+          <div style="margin-top:8px;text-align:center;font-size:0.78em;">
+            $\mathcal{L}_{3D} = \| \rho - \hat{\rho} \|_1$
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 7: Method Step 3 ============ -->
+    <section>
+      <h2>Step 3: Wind Retrieval</h2>
+      <div class="two-col" style="align-items:center;gap:20px;">
+        <!-- Left: method_overview_c.svg -->
+        <div style="display:flex;align-items:center;justify-content:center;">
+          <img src="fig/method_overview_c.svg"
+            style="width:100%;max-height:300px;object-fit:contain;">
+        </div>
+        <!-- Right: pipeline description -->
+        <div>
+          <p style="font-size:0.78em;">At inference, estimate LWC at
+            <strong>multiple time steps</strong> and extract wind by tracking
+            cloud motion.
+          </p>
+          <div style="margin:10px 0;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;white-space:nowrap;overflow-x:auto;">
+            <span class="pipeline-step step-blue" style="white-space:normal;">3D LWC<br>
+              <span style="font-size:0.8em;font-weight:400;">at time t</span>
+            </span>
+            <span class="arrow">&rarr;</span>
+            <span class="pipeline-step step-orange" style="white-space:normal;">LWC 2D slice<br>
+              <span style="font-size:0.8em;font-weight:400;">at height z, time t</span>
+            </span>
+            <span style="font-size:0.62em;color:#888;text-align:center;flex-shrink:0;">CoTracker3<br>&rarr;</span>
+            <span class="pipeline-step step-green" style="white-space:normal;">Horizontal Wind<br>
+              <span style="font-size:0.8em;font-weight:400;">at height z, time t</span>
+            </span>
+          </div>
+          <div class="highlight-box fragment" style="font-size:0.7em;">
+            <strong>Key advantage over satellites:</strong> tracking is done
+            on full 3D LWC fields rather than 2D imagery, giving
+            <strong>height-varying</strong> horizontal wind profiles.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 8: Dataset ============ -->
+    <section>
+      <h2>Dataset</h2>
+      <div class="two-col">
+        <div>
+          <h3 style="color:var(--orange);font-weight:500;">Terragen Pre-training
+          </h3>
+          <video autoplay muted loop playsinline
+            style="width:100%;border-radius:5px;box-shadow:0 2px 6px rgba(0,0,0,0.1);margin-top:4px;">
+            <source src="SUN-position.webm" type="video/webm">
+            <source src="SUN-position.mp4" type="video/mp4">
+          </video>
+          <div class="label">Procedurally generated scenes (pre-training only)
+          </div>
+        </div>
+        <div>
+          <h3 style="color:var(--blue);font-weight:500;">Physics-based Training
+            Data</h3>
+          <img src="https://cloud4d.jacob-lin.com/media/synthetic.png"
+            style="width:100%;border-radius:5px;box-shadow:0 2px 6px rgba(0,0,0,0.1);margin-top:4px;">
+          <div class="label">Large-eddy simulations (MicroHH) rendered in
+            Blender</div>
+        </div>
+      </div>
+      <div class="highlight-box fragment"
+        style="margin-top:10px;font-size:0.72em;">
+        <strong>Stats:</strong> Only shallow cumulus scenes. <strong>5 km
+          &times; 5 km</strong> area, <strong>25 m</strong> voxel size, 200
+        &times; 200 &times; 160 grid. 15,000 training images from 6 cameras. 3
+        LES scenarios (ARM, Cabauw, RICO).
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 9: Results (Qualitative) ============ -->
+    <section>
+      <h2>Results &mdash; Qualitative</h2>
+      <p style="font-size:0.72em;margin-bottom:4px;">Trained on
+        <strong>simulated data</strong>, tested on <strong>real-world</strong>
+        images (12 cumulus days, 17 hours) only shallow cumulus clouds.
+      </p>
+      <div class="two-col" style="gap:16px;align-items:center;margin:4px 0;">
+        <div>
+          <img src="fig/camera_configuration.svg"
+            style="height: 400px;width:100%;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div class="label">Setup: 3 stereo camera pairs, 2-month deployment</div>
+        </div>
+        <div>
+          <img src="https://cloud4d.jacob-lin.com/media/satellite.png"
+            style="height: 400px;width:100%;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div class="label">Top-down renders vs. Sentinel-2 and MODIS satellite imagery</div>
+        </div>
+      </div>
+      <div class="highlight-box green fragment" style="font-size:0.7em;">
+        Cloud4D estimates volumetric properties <strong>every 5
+          seconds</strong>. (<strong>Sentinel-2</strong>: 10m | every 5 days. <strong>MODIS</strong>: 25m | once per day)
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 10: Results (Radar Comparison) ============ -->
+    <section>
+      <h2>Results &mdash; Radar Comparison</h2>
+      <p style="font-size:0.72em;margin-bottom:6px;">They compare their 3D LWC
+        along a <strong>single vertical column</strong> at the radar location
+        against radar retrievals (30 m height resolution, every 30 s). </p>
+      <div class="two-col" style="gap:16px;align-items:start;">
+        <div>
+          <video autoplay muted loop playsinline
+            style="width:100%;border-radius:5px;box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+            <source src="cloud4d_radar_48fps.mp4" type="video/mp4">
+          </video>
+          <div class="label">1D LWC comparison with radar retrievals</div>
+        </div>
+        <div>
+          <img src="lwc.png"
+            style="width:100%;border-radius:5px;box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+          <div class="label">1D LWC profile vs. radar retrievals over time</div>
+        </div>
+      </div>
+      <div class="highlight-box green fragment"
+        style="font-size:0.7em;margin-top:8px;">
+        looks good 👍
+      </div>
+      <div class="highlight-box green fragment"
+        style="font-size:0.7em;margin-top:8px;">
+        way better resoltuion than ERA5 and aligned with radar
+        retrievals.
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 11: Results (Quantitative) ============ -->
+    <section>
+      <h2>Results &mdash; Quantitative</h2>
+      <p style="font-size:0.68em;margin-bottom:4px;">Comparison against radar
+        retrievals over 12 cumulus days. VIP-CT is a satellite-based baseline.
+      </p>
+      <table style="font-size:0.62em;margin:8px auto;">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Occ (F1) &uarr;</th>
+            <th>LWC (g m<sup>&minus;3</sup>) &darr;</th>
+            <th>LWP (kg m<sup>&minus;2</sup>) &darr;</th>
+            <th>CBH (m) &darr;</th>
+            <th>CTH (m) &darr;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>VIP-CT</td>
+            <td>0.40</td>
+            <td>0.13</td>
+            <td>0.39</td>
+            <td>791.23</td>
+            <td>1021.49</td>
+          </tr>
+          <tr class="ours-row">
+            <td style="color:var(--blue);font-weight:600;">Cloud4D (ours)</td>
+            <td class="best">0.70</td>
+            <td class="best">0.03</td>
+            <td class="best">0.06</td>
+            <td class="best">189.58</td>
+            <td class="best">295.77</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="fragment highlight-box green"
+        style="font-size:0.68em;margin-top:10px;">
+        Cloud4D retrieves LWC with <strong>&lt; 10% relative error</strong>
+        compared to radar, over a <strong>5 km &times; 5 km</strong> area.
+      </div>
+      <div class="two-col fragment" style="margin-top:8px;">
+        <div class="highlight-box" style="margin:0;font-size:0.68em;">
+          <strong>Ablation &mdash; Sparse Transformer:</strong> Improves LWC,
+          CBH, CTH. LWP and Occ unchanged (by design: softmax preserves LWP).
+        </div>
+        <div class="highlight-box orange" style="margin:0;font-size:0.68em;">
+          <strong>Ablation &mdash; Fewer Cameras:</strong> Dropping camera
+          pairs degrades CBH/CTH accuracy significantly, while LWC/LWP are
+          more robust.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 12: Questions ============ -->
+    <section>
+      <h2>Discussion</h2>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+        <div class="method-step-card fragment">
+          <h4>As ML/CV researchers: did the motivation convince you?</h4>
+        </div>
+        <div class="method-step-card fragment">
+          <h4>Was the atmospheric science easy to follow, or feel you missed something?</h4>
+        </div>
+        <div class="method-step-card fragment">
+          <h4>Why not learn the 3D structure directly (skip step a)?<br>
+            Why DINOv2 and not a transformer trained from scratch?</h4>
+        </div>
+        <div class="highlight-box orange fragment" style="font-size:0.72em;">
+          <strong>My guess:</strong> for 
+          nowcasting you need an update every ~5 s or a bit less &rarr; step a) is very fast
+          (2D CNN on a flat feature volume). This also makes step b) easier:
+          the coarse 3D initialization means you only attend over
+          <strong>sparse</strong> voxels
+          (M &ll; N<sub>x</sub>N<sub>y</sub>N<sub>z</sub>), which is far
+          cheaper than a dense transformer over the full grid.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 13: Thank you ============ -->
+    <section class="center-slide">
+      <h1 style="font-size:2em;">Thank you for listening</h1>
+      <p style="font-size:0.85em;color:#666;margin-top:0.4em;">
+        Cloud4D &mdash; NeurIPS 2025 Spotlight
+      </p>
+      <div style="margin-top:1.2em;font-size:0.7em;color:#888;">
+        Paper &middot; Code &middot; Dataset available at
+        <span style="color:var(--blue);">cloud4d.jacob-lin.com</span>
+      </div>
+    </section>
+
+  </div>
+  </div>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script>
+    const sectionMap = [
+      { slides: [0, 1] },          // Introduction
+      { slides: [2] },             // Vocabulary
+      { slides: [3, 4, 5, 6] },    // Method
+      { slides: [7] },             // Dataset
+      { slides: [8, 9, 10] },      // Results
+      { slides: [11, 12] },         // Questions + Thank you
+    ];
+    function updateTimeline(idx) {
+      const secs = document.querySelectorAll('.tl-section');
+      let ai = -1; sectionMap.forEach((s, i) => { if (s.slides.includes(idx)) ai = i; });
+      secs.forEach((el, i) => { el.classList.remove('active', 'past'); if (i === ai) el.classList.add('active'); else if (i < ai) el.classList.add('past'); });
+    }
+
+    Reveal.initialize({ hash: true, slideNumber: 'c/t', width: 1280, height: 720, margin: 0.04, transition: 'fade', center: false, autoPlayMedia: true, plugins: [] });
+    Reveal.on('slidechanged', e => updateTimeline(e.indexh));
+    Reveal.on('ready', e => {
+      updateTimeline(e.indexh);
+      renderMathInElement(document.body, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: false });
+    });
+  </script>
+</body>
+
+</html>
