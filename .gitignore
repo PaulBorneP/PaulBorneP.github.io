@@ -1,0 +1,7 @@
+# Sources lourdes de la presentation CSI (non necessaires au rendu web)
+csi_1/fm_samples_old/
+csi_1/Generative_3D_Clouds/
+csi_1/*.blend
+csi_1/*.npz
+csi_1/*.nc
+csi_1/*.vdb

@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSI 1 — Génération de nuages 3D à partir de sources hétérogènes</title>
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script
+    src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?famigoly=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Source+Code+Pro:wght@400;500&display=swap');
+
+    :root {
+      --blue: #4472C4;
+      --purple: #7B68EE;
+      --orange: #ED7D31;
+      --green: #70AD47;
+      --red: #C0392B;
+      --teal: #00897B;
+      --muted: #7f8c8d;
+    }
+
+    .reveal {
+      font-family: 'Crimson Pro', Georgia, 'Times New Roman', serif;
+      font-size: 32px;
+      font-weight: 400;
+      color: #2c3e50;
+    }
+
+    .reveal h1,
+    .reveal h2,
+    .reveal h3,
+    .reveal h4 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 600;
+      color: #1a1a2e;
+      text-transform: none;
+      letter-spacing: -0.01em;
+    }
+
+    .reveal h1 {
+      font-size: 2.2em;
+      margin-bottom: 0.2em;
+    }
+
+    .reveal h2 {
+      font-size: 1.45em;
+      margin-bottom: 0.25em;
+    }
+
+    .reveal h3 {
+      font-size: 1.05em;
+      margin-bottom: 0.15em;
+    }
+
+    .reveal p,
+    .reveal li {
+      line-height: 1.5;
+      font-size: 0.82em;
+    }
+
+    .reveal ul {
+      margin-left: 0.5em;
+    }
+
+    .reveal .slides section {
+      text-align: left;
+      padding: 42px 50px 30px 50px;
+      display: flex !important;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    .reveal .slides section.center-slide {
+      text-align: center;
+      align-items: center;
+    }
+
+    /* Timeline */
+    #timeline-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 34px;
+      background: rgba(255, 255, 255, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      border-bottom: 1px solid #e8e8e8;
+      backdrop-filter: blur(8px);
+    }
+
+    .tl-section {
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      height: 100%;
+      position: relative;
+      cursor: default;
+    }
+
+    .tl-section .tl-label {
+      font-family: 'Crimson Pro', serif;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: #bbb;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      transition: color 0.3s;
+    }
+
+    .tl-section.active .tl-label {
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .tl-section.past .tl-label {
+      color: #888;
+    }
+
+    .tl-section::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2.5px;
+      background: transparent;
+      transition: background 0.3s;
+    }
+
+    .tl-section.active::after {
+      background: var(--blue);
+    }
+
+    .tl-section.past::after {
+      background: #ccc;
+    }
+
+    .tl-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #ccc;
+      margin: 0 10px;
+      flex-shrink: 0;
+    }
+
+    /* Title */
+    .title-slide h1 {
+      font-size: 1.9em;
+      line-height: 1.15;
+      margin-bottom: 0.15em;
+    }
+
+    .title-slide .subtitle {
+      font-size: 1em;
+      color: #666;
+      font-style: italic;
+      margin-bottom: 0.6em;
+    }
+
+    .title-slide .authors {
+      font-size: 0.7em;
+      color: #555;
+      margin-bottom: 0.15em;
+    }
+
+    .title-slide .affiliation {
+      font-size: 0.58em;
+      color: #888;
+    }
+
+    .title-slide .venue {
+      font-size: 0.62em;
+      color: var(--blue);
+      font-weight: 600;
+      margin-top: 0.3em;
+    }
+
+    /* Highlight box */
+    .highlight-box {
+      background: linear-gradient(135deg, #f8f9fa, #eef1f5);
+      border-left: 3px solid var(--blue);
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin: 8px 0;
+      font-size: 0.78em;
+    }
+
+    .highlight-box.green {
+      border-left-color: var(--green);
+      background: linear-gradient(135deg, #f8fdf8, #eef5ee);
+    }
+
+    .highlight-box.orange {
+      border-left-color: var(--orange);
+      background: linear-gradient(135deg, #fefaf6, #fdf3e8);
+    }
+
+    .highlight-box.red {
+      border-left-color: var(--red);
+      background: linear-gradient(135deg, #fef6f6, #fdeaea);
+    }
+
+    /* Pipeline */
+    .pipeline-step {
+      display: inline-block;
+      padding: 6px 13px;
+      border-radius: 6px;
+      font-size: 0.7em;
+      font-weight: 600;
+      margin: 3px;
+      line-height: 1.3;
+    }
+
+    .step-blue {
+      background: #e8f0fe;
+      color: var(--blue);
+    }
+
+    .step-purple {
+      background: #f0ecfe;
+      color: var(--purple);
+    }
+
+    .step-orange {
+      background: #fef0e0;
+      color: var(--orange);
+    }
+
+    .step-green {
+      background: #edf7ed;
+      color: var(--green);
+    }
+
+    .step-red {
+      background: #fef6f6;
+      color: var(--red);
+    }
+
+    .step-teal {
+      background: #e0f2f1;
+      color: var(--teal);
+    }
+
+    .arrow {
+      font-size: 1.1em;
+      color: #bbb;
+      vertical-align: middle;
+      margin: 0 2px;
+    }
+
+    /* Image */
+    .img-grid {
+      display: grid;
+      gap: 8px;
+      margin: 8px 0;
+    }
+
+    .img-grid img {
+      width: 100%;
+      border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .label {
+      text-align: center;
+      font-size: 0.58em;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    /* Two-col */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Section divider */
+    .section-divider h2 {
+      font-size: 1.8em;
+      color: #2c3e50;
+    }
+
+    /* Table */
+    .reveal table {
+      font-size: 0.6em;
+      border-collapse: collapse;
+      margin: 8px auto;
+    }
+
+    .reveal table th {
+      background: #f0f4f8;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-bottom: 2px solid #ddd;
+    }
+
+    .reveal table td {
+      padding: 3px 8px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .reveal table .best {
+      font-weight: 700;
+      color: var(--blue);
+    }
+
+    .reveal table .second {
+      text-decoration: underline;
+    }
+
+    .reveal table .ours-row {
+      background: #f0f7ff;
+    }
+
+    .katex {
+      font-size: 0.95em;
+    }
+
+    .equation {
+      text-align: center;
+      margin: 14px 0;
+    }
+
+    /* Method step cards */
+    .method-step-card {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 7px 0;
+      border: 1px solid #e8ecf0;
+    }
+
+    .method-step-card h4 {
+      font-size: 0.78em;
+      margin: 0 0 5px 0;
+    }
+
+    .method-step-card p {
+      font-size: 0.67em;
+      margin: 0;
+      color: #555;
+    }
+
+    .contrib-item {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 7px 0;
+      border: 1px solid #e8ecf0;
+    }
+
+    .contrib-item h4 {
+      font-size: 0.78em;
+      margin: 0 0 3px 0;
+      color: var(--blue);
+    }
+
+    .contrib-item p {
+      font-size: 0.67em;
+      margin: 0;
+      color: #555;
+    }
+
+    .reveal .slide-number {
+      font-family: 'Crimson Pro', serif;
+      font-size: 13px;
+      color: #bbb;
+    }
+
+    /* Flow matching : entraînement / génération (slide interactive) */
+    .dwrap {
+      margin-top: 10px;
+    }
+
+    .dstep {
+      display: none;
+    }
+
+    .dhead,
+    .dnotes,
+    .darrows {
+      position: relative;
+    }
+
+    .dhead {
+      height: 26px;
+    }
+
+    .darrows {
+      height: 47px;
+    }
+
+    .dnotes {
+      height: 66px;
+    }
+
+    .dnote,
+    .darr {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      opacity: 0;
+      transition: opacity .3s;
+      pointer-events: none;
+    }
+
+    .dnote.show,
+    .darr.show {
+      opacity: 1;
+    }
+
+    .dhead .dnote {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 0.6em;
+      color: #666;
+    }
+
+    .dnotes .dnote {
+      text-align: center;
+      font-size: 0.5em;
+      line-height: 1.5;
+      color: #445;
+    }
+
+    .dstrip {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .dcell {
+      flex: 1;
+      text-align: center;
+      transition: opacity .35s, filter .35s;
+    }
+
+    .dcell img {
+      width: 100%;
+      display: block;
+      border-radius: 3px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .dcell .ts {
+      font-size: 0.42em;
+      color: #888;
+      margin-top: 3px;
+    }
+
+    .dcell.dim {
+      opacity: 0.12;
+      filter: grayscale(0.9);
+    }
+
+    .dcell.on img {
+      outline: 2px solid var(--red);
+      outline-offset: 1px;
+    }
+
+    .dcell.on .ts {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .dcell.tgt img {
+      outline: 2px solid var(--teal);
+      outline-offset: 1px;
+    }
+
+    .dcell.tgt .ts {
+      color: var(--teal);
+      font-weight: 700;
+    }
+
+    .dcell.nxt img {
+      outline: 2px solid var(--blue);
+      outline-offset: 1px;
+    }
+
+    .dcell.nxt .ts {
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .dreserve {
+      height: 218px;
+      margin-top: 2px;
+    }
+
+    /* Vidéo embarquée (slide nuages) */
+    .vwrap {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      overflow: hidden;
+      border-radius: 0;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    /* L'iframe recouvre entierement le conteneur (cover) : pas de bandes noires */
+    .vwrap iframe {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1.08);
+      width: max(100%, calc(300px * 16 / 9));
+      height: auto;
+      aspect-ratio: 16 / 9;
+      border: 0;
+    }
+
+    /* Comparaison de coupes empilées + colorbar */
+    .pstack {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .prow .plab {
+      font-size: 0.42em;
+      color: #445;
+      font-weight: 700;
+      margin-bottom: 1px;
+    }
+
+    .prow .pcite {
+      font-weight: 400;
+      color: #999;
+      font-style: italic;
+    }
+
+    .prow img {
+      width: 100%;
+      display: block;
+      border-radius: 3px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .prow.gt .plab {
+      color: var(--teal);
+    }
+
+    .cbar {
+      margin-top: 5px;
+    }
+
+    .cbar-img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 0;
+    }
+
+    .cbar-lab {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.4em;
+      color: #888;
+      margin-top: 1px;
+    }
+
+    /* Slide 14 : resserre les marges pour agrandir les vues de dessus */
+    .reveal .slides section.qual-slide {
+      padding-top: 60px;
+      padding-bottom: 10px;
+    }
+
+    .reveal .slides section.qual-slide h2 {
+      margin-bottom: 4px;
+    }
+
+    /* Grille de résultats qualitatifs (3 colonnes x N échantillons) */
+    .qual-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 4px 10px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .qual-grid .qhead {
+      font-size: 0.44em;
+      font-weight: 700;
+      color: #445;
+      text-align: center;
+      line-height: 1.25;
+    }
+
+    .qual-grid .qcell img {
+      width: 100%;
+      display: block;
+      border-radius: 3px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .qual-grid .qcell-ph {
+      aspect-ratio: 1380 / 320;
+      border-radius: 3px;
+    }
+
+    .qual-grid .qcell-ph .ph-icon {
+      font-size: 1.1em;
+      margin-bottom: 2px;
+    }
+
+    .qual-grid .qcell-ph .ph-text {
+      font-size: 0.42em;
+      line-height: 1.3;
+    }
+
+    .qual-grid .qcell-sat img {
+      display: block;
+      margin: 0 auto;
+      width: auto;
+      height: auto;
+      max-width: 45%;
+      max-height: 132px;
+      border-radius: 3px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .qual-grid .qcell-sat .label {
+      font-size: 0.4em;
+      margin-top: 2px;
+    }
+
+    /* Placeholder blocks for missing assets */
+    .placeholder {
+      border: 2px dashed #c9d3de;
+      border-radius: 8px;
+      background: repeating-linear-gradient(135deg, #fafbfc, #fafbfc 10px, #f2f4f7 10px, #f2f4f7 20px);
+      color: #8a97a8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 14px;
+      box-sizing: border-box;
+    }
+
+    .placeholder .ph-icon {
+      font-size: 1.8em;
+      margin-bottom: 4px;
+      opacity: 0.6;
+    }
+
+    .placeholder .ph-text {
+      font-size: 0.62em;
+      line-height: 1.4;
+      max-width: 90%;
+    }
+
+    .placeholder .ph-text strong {
+      color: #6b7686;
+    }
+
+    /* Team card */
+    .team-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .team-card .avatar {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+    }
+
+    .team-card .name {
+      font-size: 0.68em;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .team-card .role {
+      font-size: 0.55em;
+      color: #888;
+      text-align: center;
+    }
+
+    /* ---- boite "Notre modele" du slide teaser ---- */
+    .model-box {
+      flex: 0 0 auto;
+      padding: 16px 20px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      background: #fff;
+      color: #000;
+      font-weight: 700;
+      font-size: 0.72em;
+      line-height: 1.25;
+      text-align: center;
+      white-space: nowrap;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="timeline-bar">
+    <div class="tl-section"><span class="tl-label">Intro</span></div>
+    <div class="tl-dot"></div>
+    <div class="tl-section"><span class="tl-label">Observation</span>
+    </div>
+    <div class="tl-dot"></div>
+    <div class="tl-section"><span class="tl-label">Thèse</span>
+    </div>
+    <div class="tl-dot"></div>
+    <div class="tl-section"><span class="tl-label">État de l'art</span>
+    </div>
+    <div class="tl-dot"></div>
+    <div class="tl-section"><span class="tl-label">Méthode</span>
+    </div>
+    <div class="tl-dot"></div>
+    <div class="tl-section"><span class="tl-label">Résultats</span>
+    </div>
+    <div class="tl-dot"></div>
+    <div class="tl-section"><span class="tl-label">Roadmap</span>
+    </div>
+    <div class="tl-dot"></div>
+    <div class="tl-section"><span class="tl-label">Contexte</span>
+    </div>
+  </div>
+
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- ============ SLIDE 1: Titre ============ -->
+      <section class="center-slide title-slide">
+        <h1>Génération de nuages 3D<br>à partir de sources hétérogènes</h1>
+        <div class="subtitle">Premier Comité de Suivi Individuel (CSI)</div>
+        <div class="authors"><strong>Paul Borne&#8211;Pons</strong></div>
+        <div class="affiliation">Encadrement : Loïc Landrieu, Odran Sourdeval,
+          Kara D. Lamb, Mikołaj Czerkawski</div>
+        <div class="venue">CSI 1</div>
+      </section>
+
+      <!-- ============ SLIDE 2: Les nuages, un système complexe ============ -->
+      <section>
+        <h2>Les nuages : un syst&egrave;me complexe</h2>
+        <div
+          style="display:grid;grid-template-columns:0.95fr 1.05fr;gap:24px;align-items:center;flex:0 0 auto;">
+          <div>
+            <div class="highlight-box" style="margin:0;font-size:0.68em;">
+              &laquo;&nbsp;Ensemble visible de minuscules gouttelettes d'eau
+              et/ou de particules de glace
+              en suspension dans l'atmosph&egrave;re, au-dessus de la surface
+              terrestre.&nbsp;&raquo;
+              <div style="font-size:0.62em;color:#999;margin-top:5px;">American
+                Meteorological Society,
+                <em>Glossary of Meteorology</em>
+              </div>
+            </div>
+            <div class="fragment">
+              <p
+                style="font-size:0.55em;color:#555;margin:7px 0 3px 0;line-height:1.45;">
+                Ils jouent un <strong>r&ocirc;le essentiel dans la
+                  r&eacute;gulation du climat</strong>,
+                mais sont r&eacute;gis par des processus physiques :
+              </p>
+              <ul
+                style="font-size:0.55em;color:#555;line-height:1.35;margin:0 0 0 0.4em;">
+                <li style="font-size:1em;"><strong>non lin&eacute;aires</strong>
+                </li>
+                <li style="font-size:1em;"><strong>stochastiques</strong></li>
+                <li style="font-size:1em;">
+                  <strong>multi-&eacute;chelles</strong> &mdash; plus de neuf
+                  ordres de grandeur
+                </li>
+                <li style="font-size:1em;"><strong>coupl&eacute;s</strong>
+                  &mdash; microphysique, thermodynamique,
+                  turbulence, rayonnement</li>
+              </ul>
+            </div>
+          </div>
+          <div>
+            <div class="vwrap">
+              <iframe id="vimeo-clouds"
+                src="https://player.vimeo.com/video/157747167?background=1&amp;autoplay=1&amp;loop=0&amp;muted=1&amp;autopause=0&amp;dnt=1#t=151s"
+                frameborder="0" allow="autoplay; fullscreen"
+                title="Clouds of Haleakala"></iframe>
+            </div>
+          </div>
+        </div>
+
+        <div class="fragment" style="margin-top:6px;flex-shrink:0;">
+          <div
+            style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:end;">
+            <div>
+              <img src="csi_1/assets/snowflakes.jpg"
+                style="width:100%;height:160px;object-fit:contain;background:#eef2f8;border-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,0.10);">
+              <div
+                style="font-size:0.6em;font-weight:700;color:#2c3e50;margin-top:5px;">
+                &lt;1 mm</div>
+              <div style="font-size:0.5em;color:#999;">cristaux de glace</div>
+            </div>
+            <div>
+              <img src="csi_1/assets/scale_100m_cumulus.jpg"
+                style="width:100%;height:160px;object-fit:cover;border-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,0.10);">
+              <div
+                style="font-size:0.6em;font-weight:700;color:#2c3e50;margin-top:5px;">
+                100 m</div>
+              <div style="font-size:0.5em;color:#999;">cumulus</div>
+            </div>
+            <div>
+              <img src="csi_1/assets/scale_10km_anvil.jpg"
+                style="width:100%;height:160px;object-fit:cover;border-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,0.10);">
+              <div
+                style="font-size:0.6em;font-weight:700;color:#2c3e50;margin-top:5px;">
+                10 km</div>
+              <div style="font-size:0.5em;color:#999;">cumulonimbus</div>
+            </div>
+            <div>
+              <img src="csi_1/assets/scale_500km_hurricane_eye.jpg"
+                style="width:100%;height:160px;object-fit:cover;object-position:center 48%;border-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,0.10);">
+              <div
+                style="font-size:0.6em;font-weight:700;color:#2c3e50;margin-top:5px;">
+                500 km</div>
+              <div style="font-size:0.5em;color:#999;">cyclone</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 3: Incertitude climatique ============ -->
+      <section>
+        <h2>La premi&egrave;re source d'incertitude des mod&egrave;les
+          climatiques</h2>
+        <div style="text-align:center;margin-top:6px;">
+          <img src="csi_1/assets/climate_projection_spread.jpg"
+            style="width:74%;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
+          <div class="label">Projections de temp&eacute;rature globale avec l'incertitude des mod&egrave;les</div>
+        </div>
+        <div class="highlight-box orange fragment" style="margin-top:12px;">
+          Cette complexit&eacute; rend les nuages <strong>difficiles &agrave;
+            repr&eacute;senter</strong>
+          dans les mod&egrave;les de climat et restent aujourd'hui la <strong>principale source
+            d'incertitude</strong>
+          des projections climatiques.
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 4: Instruments passifs ============ -->
+      <section>
+        <h2>Observer les nuages depuis l'espace</h2>
+        <div class="two-col" style="align-items:center;margin-top:10px;">
+          <div class="fragment" style="text-align:center;">
+            <video autoplay muted loop playsinline
+              style="width:100%;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.10);">
+              <source src="csi_1/assets/geosta.mp4" type="video/mp4">
+            </video>
+            <div
+              style="font-size:0.66em;font-weight:600;color:var(--blue);margin-top:8px;">
+              Passif &mdash; g&eacute;ostationnaire</div>
+            <div class="label" style="margin-top:2px;">Imageur fixe au-dessus
+              d'un point du globe : tr&egrave;s bonne
+              couverture spatiale et temporelle, mais information
+              <strong>2D</strong>
+            </div>
+          </div>
+          <div class="fragment" style="text-align:center;">
+            <video autoplay muted loop playsinline
+              style="width:100%;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.10);">
+              <source src="csi_1/assets/polar.mp4" type="video/mp4">
+            </video>
+            <div
+              style="font-size:0.66em;font-weight:600;color:var(--orange);margin-top:8px;">
+              Passif &mdash; orbite polaire</div>
+            <div class="label" style="margin-top:2px;">Balaie tout le globe au
+              fil des orbites, mais chaque point
+              n'est revisit&eacute; que <strong>1&ndash;2 fois par
+                jour</strong>.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 5: Manque de 3D ============ -->
+      <section>
+        <h2>Peu d'observations 3D globales</h2>
+        <div class="highlight-box">
+          Les instruments <strong>actifs</strong> &mdash; radar et lidar &mdash;
+          fournissent des mesures
+          <strong>r&eacute;solues verticalement</strong>, mais uniquement le
+          long de traces satellitaires
+          &eacute;troites.
+        </div>
+        <div class="fragment"
+          style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:16px;">
+          <div style="text-align:center;">
+            <video autoplay muted loop playsinline
+              style="height:230px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.10);">
+              <source src="csi_1/assets/atlid.mp4" type="video/mp4">
+            </video>
+            <div
+              style="font-size:0.66em;font-weight:600;color:var(--green);margin-top:8px;">
+              Lidar &mdash; ATLID</div>
+            <div class="label" style="margin-top:1px;">EarthCARE</div>
+          </div>
+          <div style="text-align:center;">
+            <video autoplay muted loop playsinline
+              style="height:230px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.10);">
+              <source src="csi_1/assets/cpr.mp4" type="video/mp4">
+            </video>
+            <div
+              style="font-size:0.66em;font-weight:600;color:var(--teal);margin-top:8px;">
+              Radar &mdash; CPR</div>
+            <div class="label" style="margin-top:1px;">EarthCARE</div>
+          </div>
+        </div>
+        <div class="highlight-box orange fragment" style="margin-top:16px;">
+          2D dense vu d'en haut, profils verticaux pr&eacute;cis mais
+          &eacute;pars :
+          <strong>aucune v&eacute;rit&eacute;-terrain 3D dense</strong>.
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 6: Objectif de la thèse ============ -->
+      <section class="center-slide">
+        <h2>Objectif de la thèse</h2>
+        <div class="highlight-box" style="font-size:1.05em;max-width:80%;">
+          Trouver un <strong>ensemble minimal d'informations</strong> permettant
+          de recréer la structure 3D d'un nuage &mdash; à partir de sources
+          d'observation hétérogènes et incomplètes.
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 7: Équipe ============ -->
+      <section>
+        <h2>Équipe d'encadrement pluridisciplinaire</h2>
+        <div
+          style="display:flex;gap:18px;margin-top:16px;justify-content:center;">
+          <div class="team-card fragment">
+            <img src="csi_1/assets/loic.png" class="avatar" style="object-fit:cover;">
+            <div class="name">Loïc Landrieu</div>
+            <div class="role">ENPC &mdash; <em>directeur de thèse</em></div>
+            <div class="role" style="color:var(--blue);">Machine Learning,<br>3D
+              &amp; télédétection</div>
+          </div>
+          <div class="team-card fragment">
+            <img src="csi_1/assets/odran.png" class="avatar"
+              style="object-fit:cover;">
+            <div class="name">Odran Sourdeval</div>
+            <div class="role">Univ. Lille</div>
+            <div class="role" style="color:var(--orange);">
+              Télédétection<br>atmosphérique</div>
+          </div>
+          <div class="team-card fragment">
+            <img src="csi_1/assets/kara.png" class="avatar" style="object-fit:cover;">
+            <div class="name">Kara D. Lamb</div>
+            <div class="role">Columbia</div>
+            <div class="role" style="color:var(--green);">Simulation de
+              nuages<br>&amp; Machine Learning</div>
+          </div>
+          <div class="team-card fragment">
+            <img src="csi_1/assets/mikolaj.png" class="avatar"
+              style="object-fit:cover;">
+            <div class="name">Mikołaj Czerkawski</div>
+            <div class="role">Asterisk Labs</div>
+            <div class="role" style="color:var(--teal);">Télédétection<br>&amp;
+              Machine Learning</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 8: État de l'art - target 2D sparse ============ -->
+      <section>
+        <h2>État de l'art : prédiction 3D depuis une cible 2D éparse</h2>
+        <p>Les approches existantes tentent de prédire la structure 3D du nuage
+          en s'entraînant contre les rares vérités-terrain 3D disponibles
+          (traces radar/lidar) &mdash; une supervision <strong>éparse</strong>.
+        </p>
+        <div class="fragment" style="text-align:center;margin-top:8px;">
+          <img src="csi_1/assets/problem_def.png"
+            style="width:85%;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div class="label">Input : observation 2D (trace) &rarr; Modèle &rarr;
+            Output : voxels 3D, supervisés uniquement le long de la trace éparse
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 9: Prédictions floues ============ -->
+      <section>
+        <h2>Un probl&egrave;me r&eacute;current : des pr&eacute;dictions floues</h2>
+        <div class="two-col" style="grid-template-columns:1.18fr 0.82fr;gap:20px;align-items:stretch;">
+          <div style="display:flex;flex-direction:column;justify-content:center;">
+            <div class="fragment" style="text-align:center;margin-bottom:6px;">
+              <img src="csi_1/assets/topview137_overpass.png"
+                style="height:132px;width:auto;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.12);">
+              <div class="label" style="font-size:0.46em;">vue de dessus (entr&eacute;e)
+                &mdash; <span style="color:var(--red);font-weight:600;">trace du
+                  satellite</span> = plan de coupe</div>
+            </div>
+            <div class="fragment" style="display:flex;gap:8px;">
+              <div style="flex:1;">
+                <img src="csi_1/assets/curtain137_seed0.png"
+                  style="width:100%;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.12);">
+                <div class="label" style="font-size:0.46em;">nuage possible 1</div>
+              </div>
+              <div style="flex:1;">
+                <img src="csi_1/assets/curtain137_seed1.png"
+                  style="width:100%;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.12);">
+                <div class="label" style="font-size:0.46em;">nuage possible 2</div>
+              </div>
+              <div style="flex:1;">
+                <img src="csi_1/assets/curtain137_seed2.png"
+                  style="width:100%;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.12);">
+                <div class="label" style="font-size:0.46em;">nuage possible 3</div>
+              </div>
+            </div>
+            <div class="fragment"
+              style="text-align:center;font-size:1.15em;color:#bbb;margin:2px 0 0 0;">
+              &darr;&nbsp;moyenne&nbsp;&darr;</div>
+            <div class="fragment" style="text-align:center;">
+              <img src="csi_1/assets/curtain137_mean.png"
+                style="width:72%;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.12);">
+              <div class="label" style="font-size:0.46em;">moyenne des
+                &eacute;chantillons &rarr; structures fines perdues,
+                r&eacute;sultat flou</div>
+            </div>
+          </div>
+          <div>
+            <div class="pstack">
+              <div class="prow">
+                <div class="plab">Pr&eacute;diction mod&egrave;le FDL
+                  <span class="pcite">(Girtsou <em>et al.</em>, ML4PS 2025)</span>
+                </div>
+                <img src="csi_1/assets/patch00137_fdl_pred.png">
+              </div>
+              <div class="prow">
+                <div class="plab">Pr&eacute;diction mod&egrave;le ICN
+                  <span class="pcite">(Jeggle <em>et al.</em>, AIES 2025)</span>
+                </div>
+                <img src="csi_1/assets/patch00137_icn_pred.png">
+              </div>
+              <div class="prow gt">
+                <div class="plab">V&eacute;rit&eacute;-terrain</div>
+                <img src="csi_1/assets/patch00137_icn_target.png">
+              </div>
+            </div>
+            <div class="cbar">
+              <img src="csi_1/assets/iwc_colorbar.png" class="cbar-img">
+            </div>
+          </div>
+        </div>
+        <div class="highlight-box orange fragment" style="margin-top:6px;">
+          Le mod&egrave;le ne sait pas laquelle des possibilit&eacute;s est la
+          bonne, il "moyenne" toutes les options compatibles avec
+          l'entr&eacute;e &mdash; d'o&ugrave; le flou.
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 10: Teaser ============ -->
+      <section>
+        <h2>Teaser : qu'est ce qu'on veut faire ?</h2>
+        <div class="two-col"
+          style="grid-template-columns:270px auto 290px;justify-content:center;gap:10px;align-items:center;">
+          <div style="position:relative;">
+            <img src="csi_1/assets/patch10_topview_seviri.png"
+              style="width:100%;height:auto;margin:0;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,0.12);">
+            <div class="label"
+              style="position:absolute;top:100%;left:0;right:0;margin-top:4px;">
+              Entr&eacute;e : la vue de dessus (SEVIRI, canal IR 10.8 &micro;m,
+              2D)</div>
+          </div>
+
+          <!-- pipeline : fleche -> Notre modele -> fleches vers les 3 sorties -->
+          <div
+            style="display:flex;align-items:center;justify-content:center;gap:2px;">
+            <svg width="30" height="14" viewBox="0 0 30 14"
+              style="overflow:visible;">
+              <defs>
+                <marker id="ah" markerWidth="6" markerHeight="6" refX="5"
+                  refY="3" orient="auto">
+                  <path d="M0,0 L6,3 L0,6 z" fill="var(--blue)"></path>
+                </marker>
+                <marker id="ah-black" markerWidth="6" markerHeight="6" refX="5"
+                  refY="3" orient="auto">
+                  <path d="M0,0 L6,3 L0,6 z" fill="#000"></path>
+                </marker>
+              </defs>
+              <line x1="0" y1="7" x2="24" y2="7" stroke="#000"
+                stroke-width="2" marker-end="url(#ah-black)"></line>
+            </svg>
+            <div class="model-box">Notre<br>mod&egrave;le</div>
+          </div>
+
+          <div
+            style="display:flex;flex-direction:column;gap:8px;position:relative;">
+            <div style="display:flex;align-items:center;gap:4px;">
+              <svg width="34" height="14" viewBox="0 0 34 14" style="overflow:visible;flex:0 0 auto;"><line x1="0" y1="7" x2="28" y2="7" stroke="#000" stroke-width="2" marker-end="url(#ah-black)"></line></svg>
+              <img src="csi_1/assets/teaser_render_1.png"
+                style="width:100%;height:auto;display:block;margin:0;border-radius:4px;">
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <svg width="34" height="14" viewBox="0 0 34 14" style="overflow:visible;flex:0 0 auto;"><line x1="0" y1="7" x2="28" y2="7" stroke="#000" stroke-width="2" marker-end="url(#ah-black)"></line></svg>
+              <img src="csi_1/assets/teaser_render_2.jpg"
+                style="width:100%;height:auto;display:block;margin:0;border-radius:4px;">
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <svg width="34" height="14" viewBox="0 0 34 14" style="overflow:visible;flex:0 0 auto;"><line x1="0" y1="7" x2="28" y2="7" stroke="#000" stroke-width="2" marker-end="url(#ah-black)"></line></svg>
+              <img src="csi_1/assets/teaser_render_3.jpg"
+                style="width:100%;height:auto;display:block;margin:0;border-radius:4px;">
+            </div>
+            <div class="label"
+              style="position:absolute;top:100%;left:0;right:0;margin-top:4px;">
+              Sortie : plusieurs nuages 3D <em>diff&eacute;rents</em>, tous
+              compatibles avec la m&ecirc;me entr&eacute;e</div>
+          </div>
+        </div>
+        <div class="highlight-box green fragment" style="margin-top:10px;">
+          Au lieu d'une seule reconstruction floue, on veut
+          <strong>&eacute;chantillonner</strong> plusieurs volumes nets et
+          plausibles &mdash; la diversit&eacute; remplace le flou.
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 11: Flow matching (interactif) + problème ============ -->
+      <section id="slide-flow">
+        <h2>Notre outil : le <em>flow matching</em></h2>
+        <div class="highlight-box">
+          Le mod&egrave;le apprend un <strong>chemin continu</strong> qui
+          transporte du bruit vers la donn&eacute;e : il pr&eacute;dit, en
+          chaque point, la <strong>direction</strong> &agrave; suivre &mdash;
+          au lieu de pr&eacute;dire une seule sortie "moyenne", il peut
+          g&eacute;n&eacute;rer plusieurs sorties diverses et nettes.
+        </div>
+
+        <span class="dstep fragment" data-fragment-index="0"></span>
+        <span class="dstep fragment" data-fragment-index="1"></span>
+        <span class="dstep fragment" data-fragment-index="2"></span>
+        <span class="dstep fragment" data-fragment-index="3"></span>
+        <span class="dstep fragment" data-fragment-index="4"></span>
+        <span class="dstep fragment" data-fragment-index="5"></span>
+        <span class="dstep fragment" data-fragment-index="6"></span>
+        <span class="dstep fragment" data-fragment-index="7"></span>
+
+        <div class="dwrap" data-stage="0">
+          <div class="dhead">
+            <div class="dnote" id="head-base">
+              <span style="flex:0 0 auto;font-weight:600;">Donn&eacute;e</span>
+              <span style="flex:1;height:1px;background:#ccc;"></span>
+              <span style="flex:0 0 auto;">interpolation lin&eacute;aire &rarr;</span>
+              <span style="flex:1;height:1px;background:#ccc;"></span>
+              <span style="flex:0 0 auto;font-weight:600;">Bruit</span>
+            </div>
+            <div class="dnote" id="head-train" style="color:var(--red);">
+              <span style="flex:1;height:1px;background:#e3c9c6;"></span>
+              <span style="flex:0 0 auto;font-weight:700;">Entra&icirc;nement :
+                un couple (cible, version bruit&eacute;e) &agrave; la fois</span>
+              <span style="flex:1;height:1px;background:#e3c9c6;"></span>
+            </div>
+            <div class="dnote" id="head-inf" style="color:var(--blue);">
+              <span style="flex:1;height:1px;background:#cdd8ea;"></span>
+              <span style="flex:0 0 auto;font-weight:700;">G&eacute;n&eacute;ration :
+                du bruit pur vers la donn&eacute;e, pas &agrave; pas</span>
+              <span style="flex:1;height:1px;background:#cdd8ea;"></span>
+            </div>
+          </div>
+
+          <div class="dstrip">
+            <div class="dcell c0"><img src="csi_1/assets/curtain_diff_0.png">
+              <div class="ts">t = 0</div>
+            </div>
+            <div class="dcell c1"><img src="csi_1/assets/curtain_diff_1.png">
+              <div class="ts">t = 0,2</div>
+            </div>
+            <div class="dcell c2"><img src="csi_1/assets/curtain_diff_2.png">
+              <div class="ts">t = 0,4</div>
+            </div>
+            <div class="dcell c3"><img src="csi_1/assets/curtain_diff_3.png">
+              <div class="ts">t = 0,6</div>
+            </div>
+            <div class="dcell c4"><img src="csi_1/assets/curtain_diff_4.png">
+              <div class="ts">t = 0,8</div>
+            </div>
+            <div class="dcell c5"><img src="csi_1/assets/curtain_diff_5.png">
+              <div class="ts">t = 1</div>
+            </div>
+          </div>
+
+          <div class="darrows">
+            <svg class="darr" id="arr-train-4" viewBox="0 0 600 24">
+              <defs>
+                <marker id="m-arr-train-4" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#C0392B" />
+                </marker>
+              </defs>
+              <path d="M450,2 C450,20 50,20 50,3" fill="none" stroke="#C0392B"
+                stroke-width="0.8" stroke-dasharray="3,2" marker-end="url(#m-arr-train-4)" />
+            </svg>
+            <svg class="darr" id="arr-train-2" viewBox="0 0 600 24">
+              <defs>
+                <marker id="m-arr-train-2" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#C0392B" />
+                </marker>
+              </defs>
+              <path d="M250,2 C250,20 50,20 50,3" fill="none" stroke="#C0392B"
+                stroke-width="0.8" stroke-dasharray="3,2" marker-end="url(#m-arr-train-2)" />
+            </svg>
+            <svg class="darr" id="arr-train-1" viewBox="0 0 600 24">
+              <defs>
+                <marker id="m-arr-train-1" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#C0392B" />
+                </marker>
+              </defs>
+              <path d="M150,2 C150,20 50,20 50,3" fill="none" stroke="#C0392B"
+                stroke-width="0.8" stroke-dasharray="3,2" marker-end="url(#m-arr-train-1)" />
+            </svg>
+            <svg class="darr" id="arr-inf-5" viewBox="0 0 600 24">
+              <defs>
+                <marker id="m-arr-inf-5" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#4472C4" />
+                </marker>
+              </defs>
+              <path d="M524,9 L476,9" fill="none" stroke="#4472C4" stroke-width="1"
+                marker-end="url(#m-arr-inf-5)" />
+              <text x="500" y="5" text-anchor="middle" font-size="7" fill="#4472C4"
+                font-family="Crimson Pro, serif" font-style="italic">v<tspan baseline-shift="sub" font-size="4.5">&#952;</tspan></text>
+            </svg>
+            <svg class="darr" id="arr-inf-4" viewBox="0 0 600 24">
+              <defs>
+                <marker id="m-arr-inf-4" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#4472C4" />
+                </marker>
+              </defs>
+              <path d="M424,9 L376,9" fill="none" stroke="#4472C4" stroke-width="1"
+                marker-end="url(#m-arr-inf-4)" />
+              <text x="400" y="5" text-anchor="middle" font-size="7" fill="#4472C4"
+                font-family="Crimson Pro, serif" font-style="italic">v<tspan baseline-shift="sub" font-size="4.5">&#952;</tspan></text>
+            </svg>
+            <svg class="darr" id="arr-inf-3" viewBox="0 0 600 24">
+              <defs>
+                <marker id="m-arr-inf-3" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#4472C4" />
+                </marker>
+              </defs>
+              <path d="M324,9 L276,9" fill="none" stroke="#4472C4" stroke-width="1"
+                marker-end="url(#m-arr-inf-3)" />
+              <text x="300" y="5" text-anchor="middle" font-size="7" fill="#4472C4"
+                font-family="Crimson Pro, serif" font-style="italic">v<tspan baseline-shift="sub" font-size="4.5">&#952;</tspan></text>
+            </svg>
+            <svg class="darr" id="arr-inf-2" viewBox="0 0 600 24">
+              <defs>
+                <marker id="m-arr-inf-2" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#4472C4" />
+                </marker>
+              </defs>
+              <path d="M224,9 L176,9" fill="none" stroke="#4472C4" stroke-width="1"
+                marker-end="url(#m-arr-inf-2)" />
+              <text x="200" y="5" text-anchor="middle" font-size="7" fill="#4472C4"
+                font-family="Crimson Pro, serif" font-style="italic">v<tspan baseline-shift="sub" font-size="4.5">&#952;</tspan></text>
+            </svg>
+            <svg class="darr" id="arr-inf-1" viewBox="0 0 600 24">
+              <defs>
+                <marker id="m-arr-inf-1" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#4472C4" />
+                </marker>
+              </defs>
+              <path d="M124,9 L76,9" fill="none" stroke="#4472C4" stroke-width="1"
+                marker-end="url(#m-arr-inf-1)" />
+              <text x="100" y="5" text-anchor="middle" font-size="7" fill="#4472C4"
+                font-family="Crimson Pro, serif" font-style="italic">v<tspan baseline-shift="sub" font-size="4.5">&#952;</tspan></text>
+            </svg>
+          </div>
+
+          <div class="dnotes">
+            <div class="dnote" id="note-base">
+              &larr;&nbsp;&agrave; gauche la donn&eacute;e r&eacute;elle, &agrave;
+              droite du bruit pur : le mod&egrave;le apprend le chemin de retour&nbsp;&rarr;
+            </div>
+            <div class="dnote" id="note-train-4">
+              <b>It&eacute;ration d'entra&icirc;nement :</b> on tire
+              $t=0{,}8$ au hasard et on interpole la cible avec du bruit &mdash;
+              $x_t=(1-t)\,x_0+t\,\varepsilon$, $\varepsilon\sim\mathcal{N}(0,I)$.
+              Le r&eacute;seau pr&eacute;dit la
+              direction $v_\theta(x_t,t)\approx \varepsilon-x_0$ ;
+              perte $\lVert v_\theta(x_t,t)-(\varepsilon-x_0)\rVert^2$.
+            </div>
+            <div class="dnote" id="note-train-2">
+              <b>It&eacute;ration d'entra&icirc;nement :</b> on tire
+              $t=0{,}4$ au hasard et on interpole la cible avec du bruit &mdash;
+              $x_t=(1-t)\,x_0+t\,\varepsilon$, $\varepsilon\sim\mathcal{N}(0,I)$.
+              Le r&eacute;seau pr&eacute;dit la
+              direction $v_\theta(x_t,t)\approx \varepsilon-x_0$ ;
+              perte $\lVert v_\theta(x_t,t)-(\varepsilon-x_0)\rVert^2$.
+            </div>
+            <div class="dnote" id="note-train-1">
+              <b>It&eacute;ration d'entra&icirc;nement :</b> on tire
+              $t=0{,}2$ au hasard et on interpole la cible avec du bruit &mdash;
+              $x_t=(1-t)\,x_0+t\,\varepsilon$, $\varepsilon\sim\mathcal{N}(0,I)$.
+              Le r&eacute;seau pr&eacute;dit la
+              direction $v_\theta(x_t,t)\approx \varepsilon-x_0$ ;
+              perte $\lVert v_\theta(x_t,t)-(\varepsilon-x_0)\rVert^2$.
+            </div>
+            <div class="dnote" id="note-inf-5">
+              <b>G&eacute;n&eacute;ration, pas 1/5 :</b> on part d'un bruit pur $x_1\sim\mathcal{N}(0,I)$.
+              On &eacute;value le r&eacute;seau en $t=1$ et on avance d'un pas
+              $\Delta t=0{,}2$ :
+              $x_{0{,}8}=x_{1}-\Delta t\; v_\theta(x_{1},\,1)$.
+            </div>
+            <div class="dnote" id="note-inf-4">
+              <b>G&eacute;n&eacute;ration, pas 2/5 :</b> on repart de $x_{0{,}8}$ obtenu &agrave; l'&eacute;tape pr&eacute;c&eacute;dente.
+              On &eacute;value le r&eacute;seau en $t=0{,}8$ et on avance d'un pas
+              $\Delta t=0{,}2$ :
+              $x_{0{,}6}=x_{0{,}8}-\Delta t\; v_\theta(x_{0{,}8},\,0{,}8)$.
+            </div>
+            <div class="dnote" id="note-inf-3">
+              <b>G&eacute;n&eacute;ration, pas 3/5 :</b> on repart de $x_{0{,}6}$ obtenu &agrave; l'&eacute;tape pr&eacute;c&eacute;dente.
+              On &eacute;value le r&eacute;seau en $t=0{,}6$ et on avance d'un pas
+              $\Delta t=0{,}2$ :
+              $x_{0{,}4}=x_{0{,}6}-\Delta t\; v_\theta(x_{0{,}6},\,0{,}6)$.
+            </div>
+            <div class="dnote" id="note-inf-2">
+              <b>G&eacute;n&eacute;ration, pas 4/5 :</b> on repart de $x_{0{,}4}$ obtenu &agrave; l'&eacute;tape pr&eacute;c&eacute;dente.
+              On &eacute;value le r&eacute;seau en $t=0{,}4$ et on avance d'un pas
+              $\Delta t=0{,}2$ :
+              $x_{0{,}2}=x_{0{,}4}-\Delta t\; v_\theta(x_{0{,}4},\,0{,}4)$.
+            </div>
+            <div class="dnote" id="note-inf-1">
+              <b>G&eacute;n&eacute;ration, pas 5/5 :</b> on repart de $x_{0{,}2}$ obtenu &agrave; l'&eacute;tape pr&eacute;c&eacute;dente.
+              On &eacute;value le r&eacute;seau en $t=0{,}2$ et on avance d'un pas
+              $\Delta t=0{,}2$ :
+              $x_{0}=x_{0{,}2}-\Delta t\; v_\theta(x_{0{,}2},\,0{,}2)$.
+            </div>
+          </div>
+        </div>
+
+        <div class="dreserve">
+        <div class="highlight-box red fragment" data-fragment-index="8" style="margin-top:0;">
+          <div style="margin-bottom:8px;">
+            <strong>Probl&egrave;me :</strong> la v&eacute;rit&eacute;-terrain
+            est &eacute;parse &mdash; une seule
+            <em>coupe</em> traverse le volume 3D. On ne peut construire le
+            chemin bruit&nbsp;&rarr;&nbsp;donn&eacute;e que l&agrave; o&ugrave;
+            l'on observe.
+          </div>
+          <div
+            style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:0.55em;color:#8b6b68;">
+            <span style="flex:0 0 auto;font-weight:700;">Donn&eacute;e</span>
+            <span style="flex:1;height:1px;background:#e3c9c6;"></span>
+            <span style="flex:0 0 auto;">interpolation lin&eacute;aire &rarr;</span>
+            <span style="flex:1;height:1px;background:#e3c9c6;"></span>
+            <span style="flex:0 0 auto;font-weight:700;">Bruit</span>
+          </div>
+          <div
+            style="display:flex;gap:26px;align-items:center;justify-content:center;margin:2px 0;">
+            <svg viewBox="0 0 140 120" style="height:96px;"
+              xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <clipPath id="box1">
+                  <polygon points="14,50 66,24 126,42 126,82 74,108 14,90" />
+                </clipPath>
+                <clipPath id="cut1">
+                  <polygon points="30,42 110,50 110,90 30,82" />
+                </clipPath>
+              </defs>
+              <!-- arêtes cachées -->
+              <g fill="none" stroke="#9aa8ba" stroke-width="0.9"
+                stroke-dasharray="3,3">
+                <path d="M66,24 L66,64 M14,90 L66,64 L126,82" />
+              </g>
+              <line x1="30" y1="42" x2="110" y2="50" stroke="#2e7d32"
+                stroke-width="1.2" />
+              <!-- coupe observée -->
+              <image href="csi_1/assets/curtain_diff_0.png" x="30" y="42" width="80"
+                height="48" preserveAspectRatio="none" clip-path="url(#cut1)" />
+              <polygon points="30,42 110,50 110,90 30,82" fill="none"
+                stroke="#2e7d32" stroke-width="1.2" />
+              <!-- arêtes visibles -->
+              <g fill="none" stroke="#6d7d92" stroke-width="1.3">
+                <path d="M14,50 L66,24 L126,42" />
+                <path d="M14,50 L74,68 L126,42" />
+                <path d="M14,50 L14,90 M126,42 L126,82 M74,68 L74,108" />
+                <path d="M14,90 L74,108 L126,82" />
+              </g>
+            </svg>
+            <svg viewBox="0 0 140 120" style="height:96px;"
+              xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <clipPath id="box2">
+                  <polygon points="14,50 66,24 126,42 126,82 74,108 14,90" />
+                </clipPath>
+                <clipPath id="cut2">
+                  <polygon points="30,42 110,50 110,90 30,82" />
+                </clipPath>
+              </defs>
+              <image href="csi_1/assets/vol_noise.png" x="8" y="20" width="124"
+                height="92" preserveAspectRatio="none" clip-path="url(#box2)"
+                opacity="0.45" />
+              <!-- arêtes cachées -->
+              <g fill="none" stroke="#9aa8ba" stroke-width="0.9"
+                stroke-dasharray="3,3">
+                <path d="M66,24 L66,64 M14,90 L66,64 L126,82" />
+              </g>
+              <line x1="30" y1="42" x2="110" y2="50" stroke="#2e7d32"
+                stroke-width="1.2" />
+              <!-- coupe observée -->
+              <image href="csi_1/assets/curtain_diff_3.png" x="30" y="42" width="80"
+                height="48" preserveAspectRatio="none" clip-path="url(#cut2)" />
+              <polygon points="30,42 110,50 110,90 30,82" fill="none"
+                stroke="#2e7d32" stroke-width="1.2" />
+              <!-- arêtes visibles -->
+              <g fill="none" stroke="#6d7d92" stroke-width="1.3">
+                <path d="M14,50 L66,24 L126,42" />
+                <path d="M14,50 L74,68 L126,42" />
+                <path d="M14,50 L14,90 M126,42 L126,82 M74,68 L74,108" />
+                <path d="M14,90 L74,108 L126,82" />
+              </g>
+            </svg>
+            <svg viewBox="0 0 140 120" style="height:96px;"
+              xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <clipPath id="box3">
+                  <polygon points="14,50 66,24 126,42 126,82 74,108 14,90" />
+                </clipPath>
+                <clipPath id="cut3">
+                  <polygon points="30,42 110,50 110,90 30,82" />
+                </clipPath>
+              </defs>
+              <image href="csi_1/assets/vol_noise.png" x="8" y="20" width="124"
+                height="92" preserveAspectRatio="none" clip-path="url(#box3)"
+                opacity="1.00" />
+              <!-- arêtes cachées -->
+              <g fill="none" stroke="#9aa8ba" stroke-width="0.9"
+                stroke-dasharray="3,3">
+                <path d="M66,24 L66,64 M14,90 L66,64 L126,82" />
+              </g>
+              <!-- <line x1="30" y1="42" x2="110" y2="50" stroke="#2e7d32"
+                stroke-width="1.2" /> -->
+              <!-- coupe observée
+              <image href="csi_1/assets/curtain_diff_5.png" x="30" y="42" width="80"
+                height="48" preserveAspectRatio="none" clip-path="url(#cut3)" />
+              <polygon points="30,42 110,50 110,90 30,82" fill="none"
+                stroke="#2e7d32" stroke-width="1.2" /> -->
+              <!-- arêtes visibles -->
+              <g fill="none" stroke="#6d7d92" stroke-width="1.3">
+                <path d="M14,50 L66,24 L126,42" />
+                <path d="M14,50 L74,68 L126,42" />
+                <path d="M14,50 L14,90 M126,42 L126,82 M74,68 L74,108" />
+                <path d="M14,90 L74,108 L126,82" />
+              </g>
+            </svg>
+          </div>
+          <div
+            style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:0.55em;color:var(--red);">
+            <span style="flex:1;height:1px;background:#e3c9c6;"></span>
+            <span style="flex:0 0 auto;font-weight:700;">&#10007;&nbsp; l'input
+              de notre modèle est &eacute;pars, on ne peut pas apprendre le
+              champ de vitesse sur tout le volume</span>
+            <span style="flex:1;height:1px;background:#e3c9c6;"></span>
+          </div>
+        </div>
+
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 12: Notre approche - Mikado ============ -->
+      <section>
+        <h2>Notre approche : Mikado</h2>
+        <div class="two-col" style="grid-template-columns:0.8fr 1.2fr;align-items:center;">
+          <div>
+            <img src="csi_1/assets/fm_scheme.png"
+              style="width:100%;">
+            <div class="label" style="font-size:0.5em;">Entra&icirc;nement 2D
+              (flow matching) : l'image satellite conditionne la
+              g&eacute;n&eacute;ration de la coupe verticale.</div>
+          </div>
+          <div>
+            <img src="csi_1/assets/pipeline.png"
+              style="width:100%;">
+            <div class="label" style="font-size:0.5em;">G&eacute;n&eacute;ration
+              3D : les coupes verticales sont &eacute;chantillonn&eacute;es
+              s&eacute;quentiellement, chacune conditionn&eacute;e par
+              l'image satellite et par les coupes d&eacute;j&agrave;
+              g&eacute;n&eacute;r&eacute;es, puis le volume est compl&eacute;t&eacute;
+              par TV-$\ell_1$.</div>
+          </div>
+        </div>
+        <div class="highlight-box green fragment" style="margin-top:8px;">
+          On entraîne un modèle génératif 2D par <em>flow matching</em>, puis
+          on construit le volume 3D en générant séquentiellement des tranches 2D
+          qui remplissent le volume.
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 13: Résultats préliminaires ============ -->
+      <section>
+        <h2>R&eacute;sultats pr&eacute;liminaires (mod&egrave;le
+          g&eacute;n&eacute;ratif 2D)</h2>
+
+        <table style="width:96%;font-size:0.55em;">
+          <thead>
+            <tr>
+              <th rowspan="3" style="text-align:left;"></th>
+              <th colspan="4">Contenu en glace (IWC)<br><span
+                  style="font-weight:400;color:#888;">mg/m&sup3;</span></th>
+              <th colspan="2">Particules de glace<br><span
+                  style="font-weight:400;color:#888;">1000&times;part./m&sup3;</span>
+              </th>
+            </tr>
+            <tr>
+              <th colspan="2" style="font-weight:400;font-style:italic;">dataset
+                FDL</th>
+              <th colspan="2" style="font-weight:400;font-style:italic;">dataset
+                ICN</th>
+              <th colspan="2" style="font-weight:400;font-style:italic;">dataset
+                ICN</th>
+            </tr>
+            <tr>
+              <th>MAE&darr;</th>
+              <th>FID&darr;</th>
+              <th>MAE&darr;</th>
+              <th>FID&darr;</th>
+              <th>MAE&darr;</th>
+              <th>FID&darr;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align:left;">FDL</td>
+              <td class="best">49.3</td>
+              <td>0.92</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+            </tr>
+            <tr>
+              <td style="text-align:left;">ICN</td>
+              <td>52.9</td>
+              <td>0.72</td>
+              <td>56.5</td>
+              <td>0.38</td>
+              <td>68.7</td>
+              <td>0.53</td>
+            </tr>
+            <tr class="ours-row">
+              <td style="text-align:left;"><strong>Nous</strong> (oracle)</td>
+              <td>90.0</td>
+              <td class="best">0.12</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+              <td>&mdash;</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="label" style="margin-top:2px;">&mdash; : exp&eacute;riences
+          en cours. <span style="color:var(--blue);font-weight:bold;">En bleu : meilleur score.</span></div>
+
+        <!-- Explications MAE / FID mises de cote pour l'instant
+        <div class="two-col"
+          style="margin-top:8px;gap:14px;align-items:stretch;">
+          <div class="method-step-card fragment"
+            style="margin:0;padding:10px 14px;">
+            <h4 style="color:var(--blue);">MAE &mdash; pr&eacute;cision</h4>
+            <p>Erreur moyenne point &agrave; point. Favorise
+              m&eacute;caniquement les pr&eacute;dictions
+              moyenn&eacute;es, donc floues.</p>
+          </div>
+          <div class="method-step-card fragment"
+            style="margin:0;padding:10px 14px;">
+            <h4 style="color:var(--purple);">FID (adapt&eacute;) &mdash;
+              r&eacute;alisme</h4>
+            <p>M&eacute;trique perceptuelle qui mesure le flou : un
+              mod&egrave;le d&eacute;di&eacute; a d&ucirc;
+              &ecirc;tre entra&icirc;n&eacute;, le FID classique n'&eacute;tant
+              pas adapt&eacute; &agrave; nos donn&eacute;es.</p>
+          </div>
+        </div>
+        -->
+
+        <div class="highlight-box green fragment"
+          style="margin-top:8px;padding:8px 14px;">
+          On <strong>perd en pr&eacute;cision</strong> (MAE) <strong>au profit
+            du r&eacute;alisme</strong>
+          (FID divis&eacute; par ~6).
+        </div>
+        <div class="method-step-card fragment"
+          style="margin-top:8px;padding:10px 14px;">
+          <h4 style="color:var(--teal);">Mesurer la variabilit&eacute; du
+            mod&egrave;le &mdash; m&eacute;triques envisag&eacute;es</h4>
+          <ul style="margin:4px 0 0 0.6em;">
+            <li style="font-size:0.62em;line-height:1.35;"><strong>CRPS</strong>
+              &mdash; <em>Continuous Ranked Probability Score</em></li>
+            <li style="font-size:0.62em;line-height:1.35;"><strong>SER</strong>
+              &mdash; <em>Spread-Error Ratio</em></li>
+            <li style="font-size:0.62em;line-height:1.35;"><strong>Ranking
+                histogram</strong> &mdash; <em>histogramme de rang
+                (Talagrand)</em></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 14: Résultats qualitatifs ============ -->
+      <section class="qual-slide">
+        <h2>R&eacute;sultats qualitatifs</h2>
+
+        <div class="qual-grid">
+          <div class="qhead">Entr&eacute;e &mdash; image satellite<br>
+            <span style="font-weight:400;">en <span style="color:#e53935;font-weight:700;">rouge</span> : la trace du radar/lidar (coupe verticale)</span></div>
+          <div class="qhead">V&eacute;rit&eacute;-terrain &mdash; coupe
+            verticale</div>
+          <div class="qhead">Interpolation entre
+            &eacute;chantillons g&eacute;n&eacute;r&eacute;s</div>
+
+          <!-- ligne 1 -->
+          <div class="qcell-sat">
+            <img src="csi_1/fm_samples/sample00137_topview_overpass.png"
+              alt="entr&eacute;e satellite #137">
+          </div>
+          <div class="qcell"><img src="csi_1/fm_samples/sample00137_iwc_target.png">
+          </div>
+          <div class="qcell"><img src="csi_1/fm_samples/sample00137_iwc_interp.gif">
+          </div>
+
+          <!-- ligne 2 -->
+          <div class="qcell-sat">
+            <img src="csi_1/fm_samples/sample00047_topview_overpass.png"
+              alt="entr&eacute;e satellite #047">
+          </div>
+          <div class="qcell"><img src="csi_1/fm_samples/sample00047_iwc_target.png">
+          </div>
+          <div class="qcell"><img src="csi_1/fm_samples/sample00047_iwc_interp.gif">
+          </div>
+
+          <!-- ligne 3 -->
+          <div class="qcell-sat">
+            <img src="csi_1/fm_samples/sample00085_topview_overpass.png"
+              alt="entr&eacute;e satellite #085">
+          </div>
+          <div class="qcell"><img src="csi_1/fm_samples/sample00085_iwc_target.png">
+          </div>
+          <div class="qcell"><img src="csi_1/fm_samples/sample00085_iwc_interp.gif">
+          </div>
+        </div>
+
+        <div class="cbar" style="width:24%;margin:4px auto 0 auto;">
+          <img src="csi_1/fm_samples/colorbar_iwc.png" class="cbar-img">
+        </div>
+
+        <div class="highlight-box green fragment" style="margin-top:6px;">
+          La troisi&egrave;me colonne est une <strong>interpolation</strong>
+          entre plusieurs nuages possibles g&eacute;n&eacute;r&eacute;s
+          &agrave; partir de la m&ecirc;me image satellite.
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 15: Prochaines étapes ============ -->
+      <section>
+        <h2>Prochaines &eacute;tapes</h2>
+        <ul style="margin-top:16px;line-height:1.9;">
+          <li class="fragment">Corriger les <strong>artefacts</strong> du
+            mod&egrave;le 2D (flow matching)</li>
+          <li class="fragment"><strong>Passer &agrave; l'&eacute;chelle</strong>
+            pour atteindre une MAE comparable aux approches d&eacute;terministes
+          </li>
+          <li class="fragment">Finaliser le <strong>benchmark</strong> et
+            mesurer l'<strong>incertitude</strong> du mod&egrave;le</li>
+          <li class="fragment">Faire fonctionner le passage <strong>2D &rarr;
+              3D</strong></li>
+        </ul>
+      </section>
+
+      <!-- ============ SLIDE 16: Prochains projets + Gantt ============ -->
+      <section>
+        <h2>Prochains projets &amp; feuille de route</h2>
+        <div
+          style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px;">
+          <div class="contrib-item"
+            style="margin:0;border-top:3px solid var(--orange);">
+            <h4 style="color:var(--orange);"><span
+                class="pipeline-step step-orange">P2</span>
+              G&eacute;n&eacute;ration en une &eacute;tape</h4>
+            <p><em>One-step generation</em> (reflow, drifting models&#8230;) :
+              une seule passe au lieu d'une longue
+              trajectoire de g&eacute;n&eacute;ration &mdash; et plus de
+              probl&egrave;me de supervision &eacute;parse.</p>
+          </div>
+          <div class="contrib-item"
+            style="margin:0;border-top:3px solid var(--green);">
+            <h4 style="color:var(--green);"><span
+                class="pipeline-step step-green">P3</span> Climatologie 3D des
+              nuages</h4>
+            <p>Analyse de la climatologie des nuages en 3D : classification en
+              <strong>r&eacute;gimes</strong>
+              et d&eacute;finition de <strong>m&eacute;triques 3D</strong>.
+            </p>
+          </div>
+          <div class="contrib-item"
+            style="margin:0;border-top:3px solid var(--teal);">
+            <h4 style="color:var(--teal);"><span
+                class="pipeline-step step-teal">P4</span> ML multimodal,
+              donn&eacute;es h&eacute;t&eacute;rog&egrave;nes</h4>
+            <p>V&eacute;rifier si <strong>ajouter de l'information</strong>
+              &mdash; s&eacute;ries temporelles MTG,
+              donn&eacute;es spectrales MTG-S, autres sources
+              h&eacute;t&eacute;rog&egrave;nes &mdash;
+              <strong>r&eacute;duit l'incertitude</strong>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Gantt: HTML/CSS, 36 mois -->
+        <div style="margin-top:32px;position:relative;">
+          <div style="position:relative;">
+            <div style="position:relative;height:24px;margin-bottom:6px;">
+              <div
+                style="position:absolute;left:0.00%;width:19.44%;top:0;height:24px;border-radius:4px;background:#e8f0fe;border:1px solid var(--blue);display:flex;align-items:center;justify-content:center;font-size:0.52em;font-weight:700;color:var(--blue);white-space:nowrap;">
+                P1</div>
+            </div>
+            <div style="position:relative;height:24px;margin-bottom:6px;">
+              <div
+                style="position:absolute;left:22.22%;width:22.22%;top:0;height:24px;border-radius:4px;background:#fef0e0;border:1px solid var(--orange);display:flex;align-items:center;justify-content:center;font-size:0.52em;font-weight:700;color:var(--orange);white-space:nowrap;">
+                P2</div>
+            </div>
+            <div style="position:relative;height:24px;margin-bottom:6px;">
+              <div
+                style="position:absolute;left:44.44%;width:22.22%;top:0;height:24px;border-radius:4px;background:#edf7ed;border:1px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:0.52em;font-weight:700;color:var(--green);white-space:nowrap;">
+                P3</div>
+            </div>
+            <div style="position:relative;height:24px;margin-bottom:6px;">
+              <div
+                style="position:absolute;left:69.44%;width:19.44%;top:0;height:24px;border-radius:4px;background:#e0f2f1;border:1px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:0.52em;font-weight:700;color:var(--teal);white-space:nowrap;">
+                P4</div>
+            </div>
+            <div style="position:relative;height:24px;margin-bottom:6px;">
+              <div
+                style="position:absolute;left:66.67%;width:33.33%;top:0;height:24px;border-radius:4px;background:#fdf0ef;border:1px solid var(--red);display:flex;align-items:center;justify-content:center;font-size:0.52em;font-weight:700;color:var(--red);white-space:nowrap;">
+                R&eacute;daction du m&eacute;moire</div>
+            </div>
+          </div>
+          <!-- axe -->
+          <div
+            style="position:relative;height:1px;background:#ddd;margin-top:2px;">
+          </div>
+          <div
+            style="position:relative;height:16px;font-size:0.48em;color:#999;">
+            <span
+              style="position:absolute;left:0;transform:translateX(-50%);">M0</span>
+            <span
+              style="position:absolute;left:33.33%;transform:translateX(-50%);">M12</span>
+            <span
+              style="position:absolute;left:66.67%;transform:translateX(-50%);">M24</span>
+            <span
+              style="position:absolute;left:100%;transform:translateX(-50%);">M36</span>
+          </div>
+          <!-- marqueur "on est ici" (M5) -->
+          <div
+            style="position:absolute;left:13.89%;top:-10px;bottom:16px;border-left:1.5px dashed #333;">
+          </div>
+          <div style="position:absolute;left:13.89%;top:-26px;transform:translateX(-50%);font-size:0.5em;
+            font-weight:700;color:#333;white-space:nowrap;">on est ici 
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 17: Autres activités ============ -->
+      <section>
+        <h2>Autres activit&eacute;s durant la th&egrave;se</h2>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px;">
+          <div class="contrib-item"
+            style="margin:0;display:grid;grid-template-columns:0.85fr 1.15fr;gap:18px;align-items:center;">
+            <div>
+              <h4>&Eacute;cole d'&eacute;t&eacute; C3SAR</h4>
+            </div>
+            <img src="csi_1/assets/c3sar_group.jpg"
+              style="width:100%;height:330px;object-fit:cover;border-radius:5px;box-shadow:0 1px 5px rgba(0,0,0,0.12);">
+          </div>
+          <div class="contrib-item" style="margin:0;">
+            <h4>Cours "Nuages et a&eacute;rosols"</h4>
+            <p>Master SOAC, Sorbonne.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 18: Plan après la thèse ============ -->
+      <section>
+        <h2>Plan pour apr&egrave;s la th&egrave;se</h2>
+        <p style="margin-bottom:6px;">Recherche acad&eacute;mique, ou quelque
+          chose qui y est li&eacute; :</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="method-step-card">
+            <h4 style="color:var(--blue);">Asterisk Labs</h4>
+            <p>Coop&eacute;rative de recherche avec qui j'ai travaill&eacute;
+              avant la th&egrave;se et qui me co-supervise.</p>
+          </div>
+          <div class="method-step-card">
+            <h4 style="color:var(--orange);">Postdoctoral fellowship dans un
+              organisme spatial europ&eacute;en</h4>
+            <p>ESA, EUMETSAT, ECMWF.</p>
+          </div>
+          <div class="method-step-card">
+            <h4 style="color:var(--green);">Postdoctoral fellowship &agrave;
+              l'&eacute;tranger</h4>
+            <p>Londres / Oxford / Zurich / New York / Boulder (selon
+              l'&eacute;volution du climat de la recherche aux
+              &Eacute;tats-Unis).</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 19: Merci ============ -->
+      <section class="center-slide">
+        <h1 style="font-size:2em;">Merci pour votre attention</h1>
+        <p style="font-size:0.85em;color:#666;margin-top:0.4em;">Questions &amp;
+          discussion</p>
+      </section>
+
+    </div>
+  </div>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script src="https://player.vimeo.com/api/player.js"></script>
+  <script>
+    const sectionMap = [
+      { slides: [0, 1, 2] },        // Intro
+      { slides: [3, 4] },           // Observation
+      { slides: [5, 6] },           // Thèse (objectif + équipe)
+      { slides: [7, 8, 9] },        // État de l'art
+      { slides: [10, 11] },         // Méthode
+      { slides: [12] },             // Résultats
+      { slides: [13, 14] },         // Roadmap
+      { slides: [15, 16, 17] },     // Contexte + merci
+    ];
+    function updateTimeline(idx) {
+      const secs = document.querySelectorAll('.tl-section');
+      let ai = -1; sectionMap.forEach((s, i) => { if (s.slides.includes(idx)) ai = i; });
+      secs.forEach((el, i) => { el.classList.remove('active', 'past'); if (i === ai) el.classList.add('active'); else if (i < ai) el.classList.add('past'); });
+    }
+
+
+    /* --- slide flow matching : pilotage des étapes (entraînement / génération) --- */
+    const DSTAGES = [
+      { head: 'head-base', note: 'note-base' },
+      { head: 'head-train', note: 'note-train-4', arrow: 'arr-train-4', tgt: 0, on: 4 },
+      { head: 'head-train', note: 'note-train-2', arrow: 'arr-train-2', tgt: 0, on: 2 },
+      { head: 'head-train', note: 'note-train-1', arrow: 'arr-train-1', tgt: 0, on: 1 },
+      { head: 'head-inf', note: 'note-inf-5', arrow: 'arr-inf-5', on: 5, nxt: 4 },
+      { head: 'head-inf', note: 'note-inf-4', arrow: 'arr-inf-4', on: 4, nxt: 3 },
+      { head: 'head-inf', note: 'note-inf-3', arrow: 'arr-inf-3', on: 3, nxt: 2 },
+      { head: 'head-inf', note: 'note-inf-2', arrow: 'arr-inf-2', on: 2, nxt: 1 },
+      { head: 'head-inf', note: 'note-inf-1', arrow: 'arr-inf-1', on: 1, nxt: 0 },
+      { head: 'head-base', note: 'note-base' },
+    ];
+    const dwrap = document.querySelector('#slide-flow .dwrap');
+    function setDStage(k) {
+      if (!dwrap) return;
+      k = Math.max(0, Math.min(DSTAGES.length - 1, k));
+      const st = DSTAGES[k];
+      dwrap.dataset.stage = k;
+      dwrap.querySelectorAll('.dnote, .darr').forEach(el => el.classList.remove('show'));
+      ['head', 'note', 'arrow'].forEach(key => {
+        if (!st[key]) return;
+        const el = dwrap.querySelector('#' + st[key]);
+        if (el) el.classList.add('show');
+      });
+      const focus = st.tgt === undefined && st.on === undefined && st.nxt === undefined;
+      dwrap.querySelectorAll('.dcell').forEach((c, i) => {
+        c.classList.remove('dim', 'on', 'tgt', 'nxt');
+        if (focus) return;
+        if (i === st.tgt) c.classList.add('tgt');
+        else if (i === st.on) c.classList.add('on');
+        else if (i === st.nxt) c.classList.add('nxt');
+        else c.classList.add('dim');
+      });
+    }
+    function syncDStage() {
+      const idx = Reveal.getIndices();
+      const slide = Reveal.getCurrentSlide();
+      if (!slide || slide.id !== 'slide-flow') return;
+      setDStage((idx.f === undefined || idx.f === null ? -1 : idx.f) + 1);
+    }
+
+
+    /* --- extrait vidéo Vimeo (2:31 -> 4:07) piloté par la navigation --- */
+    const VSTART = 151, VEND = 247;
+    let vplayer = null;
+    try {
+      const vframe = document.getElementById('vimeo-clouds');
+      if (vframe && window.Vimeo) {
+        vplayer = new Vimeo.Player(vframe);
+        vplayer.setVolume(0).catch(() => { });
+        vplayer.on('timeupdate', d => {
+          if (d.seconds >= VEND) { vplayer.pause().catch(() => { }); }
+        });
+      }
+    } catch (e) { vplayer = null; }
+    function syncVideo(slide) {
+      if (!vplayer) return;
+      if (slide && slide.querySelector('#vimeo-clouds')) {
+        vplayer.getCurrentTime().then(t => {
+          if (t < VSTART || t >= VEND) return vplayer.setCurrentTime(VSTART);
+        }).then(() => vplayer.play()).catch(() => { });
+      } else {
+        vplayer.pause().catch(() => { });
+      }
+    }
+
+    Reveal.initialize({ hash: true, slideNumber: 'c/t', width: 1280, height: 720, margin: 0.04, transition: 'fade', center: false, autoPlayMedia: true, plugins: [] });
+    Reveal.on('slidechanged', e => { updateTimeline(e.indexh); syncDStage(); syncVideo(e.currentSlide); });
+    Reveal.on('fragmentshown', syncDStage);
+    Reveal.on('fragmenthidden', syncDStage);
+    Reveal.on('ready', e => {
+      updateTimeline(e.indexh);
+      setDStage(0);
+      syncDStage();
+      syncVideo(Reveal.getCurrentSlide());
+      renderMathInElement(document.body, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: false });
+    });
+  </script>
+</body>
+
+</html>
