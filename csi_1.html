@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CSI 1 — Génération de nuages 3D à partir de sources hétérogènes</title>
+  <title>CSI 1 : Génération de nuages 3D à partir de sources hétérogènes</title>
   <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
   <link rel="stylesheet"
@@ -160,34 +160,154 @@
 
     /* Title */
     .title-slide h1 {
-      font-size: 1.9em;
-      line-height: 1.15;
-      margin-bottom: 0.15em;
+      font-size: 2.15em;
+      line-height: 1.1;
+      margin-bottom: 0.2em;
     }
 
+    /* Deux tailles seulement sous le titre : 0.8em et 0.62em */
     .title-slide .subtitle {
-      font-size: 1em;
+      font-size: 0.8em;
       color: #666;
       font-style: italic;
-      margin-bottom: 0.6em;
+      margin-bottom: 0.9em;
     }
 
     .title-slide .authors {
-      font-size: 0.7em;
+      font-size: 0.8em;
       color: #555;
-      margin-bottom: 0.15em;
+      margin-bottom: 0.35em;
     }
 
     .title-slide .affiliation {
-      font-size: 0.58em;
+      font-size: 0.62em;
       color: #888;
+      line-height: 1.5;
     }
 
     .title-slide .venue {
       font-size: 0.62em;
       color: var(--blue);
       font-weight: 600;
-      margin-top: 0.3em;
+      margin-top: 0.5em;
+    }
+
+    .title-slide .logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 52px;
+      margin-top: 1.1em;
+    }
+
+    .title-slide .logos img {
+      height: 94px;
+      width: auto;
+      object-fit: contain;
+      filter: grayscale(15%);
+      opacity: 0.9;
+      background: none;
+      border: 0;
+      box-shadow: none;
+    }
+
+    /* Slide "À propos de moi" */
+    .about-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+      font-size: 0.72em;
+      color: #333;
+    }
+
+    .reveal .about-row img {
+      margin: 0;
+      border: 0;
+      box-shadow: none;
+      background: none;
+    }
+
+    .about-row img {
+      height: 58px;
+      width: 112px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .about-date {
+      color: #999;
+      font-size: 0.85em;
+      white-space: nowrap;
+    }
+
+    .about-list {
+      margin: 0 0 0 0.6em;
+      line-height: 1.5;
+    }
+
+    .about-list li {
+      font-size: 0.72em;
+      color: #333;
+    }
+
+    .about-exp {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-left: 3px solid var(--blue);
+      padding: 3px 0 3px 12px;
+      margin-bottom: 11px;
+    }
+
+    .about-logos {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20onpx;
+      width: 132px;
+      flex: 0 0 auto;
+    }
+
+    .reveal .about-logos img {
+      margin: 0;
+      border: 0;
+      box-shadow: none;
+      background: none;
+    }
+
+    .about-logos img {
+      height: 26px;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+    }
+
+    /* logos "pastille" (carrés) : un peu plus hauts pour l'équilibre optique */
+    .about-logos img.mark {
+      height: 42px;
+    }
+
+    .about-logos.single img {
+      height: 86px;
+    }
+
+    .about-exp-h .about-date {
+      display: block;
+    }
+
+    .about-exp-h {
+      font-size: 0.66em;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .about-exp-p {
+      font-size: 0.6em;
+      color: #666;
+      line-height: 1.4;
+      margin-top: 2px;
     }
 
     /* Highlight box */
@@ -399,16 +519,44 @@
       position: relative;
     }
 
+    .dnotes {
+      height: 30px;
+    }
+
+    /* la 2e moitie de la phrase occupe toujours sa place : le debut ne bouge pas */
+    #note-inf-tail {
+      visibility: hidden;
+    }
+
+    #note-inf-tail.show {
+      visibility: visible;
+    }
+
+    /* le point final ne prend aucune place : rien ne bouge quand il apparait */
+    #note-inf-dot {
+      display: inline-block;
+      width: 0;
+      overflow: visible;
+      visibility: hidden;
+    }
+
+    #note-inf-dot.show {
+      visibility: visible;
+    }
+
+    .dnotes .dnote {
+      text-align: center;
+      font-size: 0.55em;
+      line-height: 1.35;
+      color: var(--blue);
+    }
+
     .dhead {
       height: 26px;
     }
 
     .darrows {
       height: 47px;
-    }
-
-    .dnotes {
-      height: 66px;
     }
 
     .dnote,
@@ -436,24 +584,39 @@
       color: #666;
     }
 
-    .dnotes .dnote {
-      text-align: center;
-      font-size: 0.5em;
-      line-height: 1.5;
-      color: #445;
-    }
-
     .dstrip {
       display: flex;
-      gap: 8px;
+      gap: 0;
       align-items: flex-end;
       justify-content: center;
     }
 
+    /* Largeur pilotée en % : taille et position varient linéairement,
+       dans les deux sens de navigation. */
     .dcell {
-      flex: 1;
+      flex: 0 0 auto;
+      width: 16.6667%;
+      padding: 0 4px;
+      box-sizing: border-box;
+      overflow: hidden;
       text-align: center;
-      transition: opacity .35s, filter .35s;
+      transition: width .5s linear, padding .5s linear, opacity .5s linear,
+        filter .5s linear;
+    }
+
+    /* Étape 0 : seules la donnée et le bruit pur sont montrées, en grand */
+    .dwrap[data-stage="0"] .dcell.c0,
+    .dwrap[data-stage="0"] .dcell.c5 {
+      width: 46%;
+    }
+
+    .dwrap[data-stage="0"] .dcell.c1,
+    .dwrap[data-stage="0"] .dcell.c2,
+    .dwrap[data-stage="0"] .dcell.c3,
+    .dwrap[data-stage="0"] .dcell.c4 {
+      width: 0;
+      padding: 0;
+      opacity: 0;
     }
 
     .dcell img {
@@ -513,7 +676,7 @@
     .vwrap {
       position: relative;
       width: 100%;
-      height: 300px;
+      height: 360px;
       overflow: hidden;
       border-radius: 0;
       box-shadow: none;
@@ -526,7 +689,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) scale(1.08);
-      width: max(100%, calc(300px * 16 / 9));
+      width: max(100%, calc(360px * 16 / 9));
       height: auto;
       aspect-ratio: 16 / 9;
       border: 0;
@@ -565,6 +728,47 @@
 
     .cbar {
       margin-top: 5px;
+    }
+
+    /* Slide 9 : hauteurs fixes pour que les 4 lignes tiennent dans la diapo */
+    .s9-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      column-gap: 18px;
+      row-gap: 6px;
+      align-items: start;
+      margin-top: 4px;
+    }
+
+    .s9-grid img {
+      display: block;
+      margin: 0 auto;
+      width: auto;
+      border-radius: 3px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .s9-grid .s9-top img {
+      height: 112px;
+    }
+
+    .s9-grid .s9-seeds img {
+      height: 80px;
+    }
+
+    .s9-grid .s9-mean img {
+      height: 92px;
+    }
+
+    .s9-grid .prow img {
+      height: 100px;
+    }
+
+    .s9-grid .prow .cbar-img {
+      height: auto;
+      width: 190px;
+      box-shadow: none;
+      border-radius: 0;
     }
 
     .cbar-img {
@@ -757,22 +961,129 @@
         <h1>Génération de nuages 3D<br>à partir de sources hétérogènes</h1>
         <div class="subtitle">Premier Comité de Suivi Individuel (CSI)</div>
         <div class="authors"><strong>Paul Borne&#8211;Pons</strong></div>
-        <div class="affiliation">Encadrement : Loïc Landrieu, Odran Sourdeval,
-          Kara D. Lamb, Mikołaj Czerkawski</div>
-        <div class="venue">CSI 1</div>
+        <div class="affiliation">ENPC / LIGM &amp; LOA</div>
+        <div class="affiliation" style="margin-top:0.5em;">Encadrement : Loïc
+          Landrieu (ENPC / LIGM)
+          &middot; Odran Sourdeval (Univ. Lille / LOA)<br>
+          Kara D. Lamb (Columbia University) &middot; Mikołaj Czerkawski
+          (Asterisk Labs)</div>
+        <div class="logos">
+          <img src="csi_1/assets/ENPC.svg" alt="École des Ponts ParisTech">
+          <img src="csi_1/assets/logo-ligm.svg" alt="LIGM">
+          <img src="csi_1/assets/logo-loa.svg"
+            alt="Laboratoire d'Optique Atmosphérique">
+          <img src="csi_1/assets/logo-hi-paris-retina-306447124.png"
+            alt="Hi! PARIS">
+        </div>
       </section>
 
-      <!-- ============ SLIDE 2: Les nuages, un système complexe ============ -->
+      <!-- ============ SLIDE 2: À propos de moi ============ -->
+      <section>
+        <h2>&Agrave; propos de moi</h2>
+        <div
+          style="display:grid;grid-template-columns:0.92fr 1.08fr;gap:26px;align-items:start;margin-top:4px;">
+
+          <div>
+            <div class="fragment" data-fragment-index="1">
+              <h3 style="color:var(--blue);margin-bottom:6px;">Formation</h3>
+            <div class="about-row">
+              <img src="csi_1/assets/logo-ens-paris-saclay.jpg"
+                alt="ENS Paris-Saclay">
+              <div>ENS Paris-Saclay : <strong>Master MVA</strong>
+                <span class="about-date">2023&ndash;2024</span>
+              </div>
+            </div>
+            <div class="about-row">
+              <img src="csi_1/assets/logo-centralesupelec.png"
+                alt="CentraleSup&eacute;lec">
+              <div>CentraleSup&eacute;lec : <strong>mention Data
+                  Science</strong>
+                <span class="about-date">2020&ndash;2024</span>
+              </div>
+            </div>
+            </div>
+            <div class="fragment" data-fragment-index="3">
+              <h3 style="color:var(--blue);margin:16px 0 6px 0;">
+                Int&eacute;r&ecirc;ts de recherche</h3>
+              <ul class="about-list">
+                <li>Machine learning &#129302;</li>
+                <li>T&eacute;l&eacute;d&eacute;tection &#128752;</li>
+                <li>G&eacute;osciences &amp; climat &#127757;</li>
+                <li>3D &#129513;</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="fragment" data-fragment-index="2">
+            <h3 style="color:var(--blue);margin-bottom:6px;">Exp&eacute;riences
+            </h3>
+            <div class="about-exp" style="border-color:var(--teal);">
+              <div class="about-logos">
+                <img src="csi_1/assets/logo-asterisk.png" alt="Asterisk Labs">
+                <img src="csi_1/assets/logo-loa.svg" alt="LOA, Univ. Lille">
+              </div>
+              <div>
+                <div class="about-exp-h">Asterisk Labs &amp; LOA (Univ. Lille) :
+                  <em>pre-doc</em>
+                  <span class="about-date">oct. 2025 &ndash; mars 2026</span>
+                </div>
+                <div class="about-exp-p">Estimation &agrave; grande
+                  &eacute;chelle de la hauteur du sommet des nuages depuis
+                  Sentinel-2.</div>
+              </div>
+            </div>
+            <div class="about-exp" style="border-color:var(--green);">
+              <div class="about-logos single">
+                <img src="csi_1/assets/logo-kayrros.png" alt="Kayrros">
+              </div>
+              <div>
+                <div class="about-exp-h">Kayrros : <em>junior data
+                    scientist</em>
+                  <span class="about-date">janv. &ndash; juil. 2025</span>
+                </div>
+                <div class="about-exp-p">D&eacute;tection de
+                  d&eacute;forestation (Sentinel-1) et estimation de biomasse
+                  par deep learning (LiDAR spatial).</div>
+              </div>
+            </div>
+            <div class="about-exp" style="border-color:var(--red);">
+              <div class="about-logos">
+                <img src="csi_1/assets/logo-adobe.png" alt="Adobe Research">
+                <img src="csi_1/assets/logo-esa.png" alt="ESA" class="mark">
+              </div>
+              <div>
+                <div class="about-exp-h">Adobe Research Paris &amp; ESA
+                  &Phi;-lab : <em>machine learning researcher</em>
+                  <span class="about-date">mai &ndash; oct. 2024</span>
+                </div>
+                <div class="about-exp-p">G&eacute;n&eacute;ration de terrains
+                  3D textur&eacute;s &agrave; partir d'images satellite par
+                  diffusion <span style="white-space:nowrap;">(CVPRW&nbsp;2025,
+                    MORSE).</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="highlight-box fragment" data-fragment-index="4"
+          style="margin:14px 0 0 0;padding:8px 16px;font-size:0.72em;">
+          Th&egrave;se commenc&eacute;e en <strong>avril 2026</strong>
+
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 3: Les nuages, un système complexe ============ -->
       <section>
         <h2>Les nuages : un syst&egrave;me complexe</h2>
         <div
           style="display:grid;grid-template-columns:0.95fr 1.05fr;gap:24px;align-items:center;flex:0 0 auto;">
           <div>
-            <div class="highlight-box" style="margin:0;font-size:0.68em;">
-              &laquo;&nbsp;Ensemble visible de minuscules gouttelettes d'eau
+            <div class="highlight-box" style="margin:0;font-size:0.8em;">
+              &laquo;Ensemble visible de petites gouttes d'eau
               et/ou de particules de glace
-              en suspension dans l'atmosph&egrave;re, au-dessus de la surface
-              terrestre.&nbsp;&raquo;
+              en suspension dans l'atmosph&egrave;re, au-dessus de la
+              surface"&nbsp;&raquo;
               <div style="font-size:0.62em;color:#999;margin-top:5px;">American
                 Meteorological Society,
                 <em>Glossary of Meteorology</em>
@@ -780,23 +1091,23 @@
             </div>
             <div class="fragment">
               <p
-                style="font-size:0.55em;color:#555;margin:7px 0 3px 0;line-height:1.45;">
-                Ils jouent un <strong>r&ocirc;le essentiel dans la
-                  r&eacute;gulation du climat</strong>,
+                style="font-size:0.72em;color:#444;margin:10px 0 4px 0;line-height:1.45;">
+                Ils ont un impact majeur sur le climat</strong>,
                 mais sont r&eacute;gis par des processus physiques :
               </p>
               <ul
-                style="font-size:0.55em;color:#555;line-height:1.35;margin:0 0 0 0.4em;">
+                style="font-size:0.72em;color:#444;line-height:1.45;margin:0 0 0 0.4em;">
                 <li style="font-size:1em;"><strong>non lin&eacute;aires</strong>
                 </li>
                 <li style="font-size:1em;"><strong>stochastiques</strong></li>
-                <li style="font-size:1em;">
-                  <strong>multi-&eacute;chelles</strong> &mdash; plus de neuf
-                  ordres de grandeur
-                </li>
+
                 <li style="font-size:1em;"><strong>coupl&eacute;s</strong>
-                  &mdash; microphysique, thermodynamique,
+                  : microphysique, thermodynamique,
                   turbulence, rayonnement</li>
+                </li>
+                <li style="font-size:1em;">
+                  <strong>multi-&eacute;chelles</strong> : ~9
+                  ordres de grandeur
               </ul>
             </div>
           </div>
@@ -815,59 +1126,61 @@
             style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:end;">
             <div>
               <img src="csi_1/assets/snowflakes.jpg"
-                style="width:100%;height:160px;object-fit:contain;background:#eef2f8;border-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,0.10);">
+                style="width:100%;height:132px;object-fit:contain;background:#eef2f8;border-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,0.10);">
               <div
-                style="font-size:0.6em;font-weight:700;color:#2c3e50;margin-top:5px;">
+                style="font-size:0.68em;font-weight:700;color:#2c3e50;margin-top:5px;">
                 &lt;1 mm</div>
-              <div style="font-size:0.5em;color:#999;">cristaux de glace</div>
+              <div style="font-size:0.6em;color:#999;">cristaux de glace</div>
             </div>
             <div>
               <img src="csi_1/assets/scale_100m_cumulus.jpg"
-                style="width:100%;height:160px;object-fit:cover;border-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,0.10);">
+                style="width:100%;height:132px;object-fit:cover;border-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,0.10);">
               <div
-                style="font-size:0.6em;font-weight:700;color:#2c3e50;margin-top:5px;">
+                style="font-size:0.68em;font-weight:700;color:#2c3e50;margin-top:5px;">
                 100 m</div>
-              <div style="font-size:0.5em;color:#999;">cumulus</div>
+              <div style="font-size:0.6em;color:#999;">cumulus</div>
             </div>
             <div>
               <img src="csi_1/assets/scale_10km_anvil.jpg"
-                style="width:100%;height:160px;object-fit:cover;border-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,0.10);">
+                style="width:100%;height:132px;object-fit:cover;border-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,0.10);">
               <div
-                style="font-size:0.6em;font-weight:700;color:#2c3e50;margin-top:5px;">
+                style="font-size:0.68em;font-weight:700;color:#2c3e50;margin-top:5px;">
                 10 km</div>
-              <div style="font-size:0.5em;color:#999;">cumulonimbus</div>
+              <div style="font-size:0.6em;color:#999;">cumulonimbus</div>
             </div>
             <div>
               <img src="csi_1/assets/scale_500km_hurricane_eye.jpg"
-                style="width:100%;height:160px;object-fit:cover;object-position:center 48%;border-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,0.10);">
+                style="width:100%;height:132px;object-fit:cover;object-position:center 48%;border-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,0.10);">
               <div
-                style="font-size:0.6em;font-weight:700;color:#2c3e50;margin-top:5px;">
+                style="font-size:0.68em;font-weight:700;color:#2c3e50;margin-top:5px;">
                 500 km</div>
-              <div style="font-size:0.5em;color:#999;">cyclone</div>
+              <div style="font-size:0.6em;color:#999;">cyclone</div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- ============ SLIDE 3: Incertitude climatique ============ -->
+      <!-- ============ SLIDE 4: Incertitude climatique ============ -->
       <section>
         <h2>La premi&egrave;re source d'incertitude des mod&egrave;les
           climatiques</h2>
         <div style="text-align:center;margin-top:6px;">
           <img src="csi_1/assets/climate_projection_spread.jpg"
             style="width:74%;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
-          <div class="label">Projections de temp&eacute;rature globale avec l'incertitude des mod&egrave;les</div>
+          <div class="label">Projections de temp&eacute;rature globale avec
+            l'incertitude des mod&egrave;les</div>
         </div>
         <div class="highlight-box orange fragment" style="margin-top:12px;">
           Cette complexit&eacute; rend les nuages <strong>difficiles &agrave;
             repr&eacute;senter</strong>
-          dans les mod&egrave;les de climat et restent aujourd'hui la <strong>principale source
+          dans les mod&egrave;les de climat et restent aujourd'hui la
+          <strong>principale source
             d'incertitude</strong>
           des projections climatiques.
         </div>
       </section>
 
-      <!-- ============ SLIDE 4: Instruments passifs ============ -->
+      <!-- ============ SLIDE 5: Instruments passifs ============ -->
       <section>
         <h2>Observer les nuages depuis l'espace</h2>
         <div class="two-col" style="align-items:center;margin-top:10px;">
@@ -878,7 +1191,7 @@
             </video>
             <div
               style="font-size:0.66em;font-weight:600;color:var(--blue);margin-top:8px;">
-              Passif &mdash; g&eacute;ostationnaire</div>
+              Passif, g&eacute;ostationnaire</div>
             <div class="label" style="margin-top:2px;">Imageur fixe au-dessus
               d'un point du globe : tr&egrave;s bonne
               couverture spatiale et temporelle, mais information
@@ -892,7 +1205,7 @@
             </video>
             <div
               style="font-size:0.66em;font-weight:600;color:var(--orange);margin-top:8px;">
-              Passif &mdash; orbite polaire</div>
+              Passif, orbite polaire</div>
             <div class="label" style="margin-top:2px;">Balaie tout le globe au
               fil des orbites, mais chaque point
               n'est revisit&eacute; que <strong>1&ndash;2 fois par
@@ -901,65 +1214,73 @@
         </div>
       </section>
 
-      <!-- ============ SLIDE 5: Manque de 3D ============ -->
+      <!-- ============ SLIDE 6: Manque de 3D ============ -->
       <section>
         <h2>Peu d'observations 3D globales</h2>
-        <div class="highlight-box">
-          Les instruments <strong>actifs</strong> &mdash; radar et lidar &mdash;
-          fournissent des mesures
-          <strong>r&eacute;solues verticalement</strong>, mais uniquement le
-          long de traces satellitaires
-          &eacute;troites.
-        </div>
-        <div class="fragment"
-          style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:16px;">
+        <div
+          style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:4px;">
           <div style="text-align:center;">
             <video autoplay muted loop playsinline
-              style="height:230px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.10);">
+              style="height:212px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.10);">
               <source src="csi_1/assets/atlid.mp4" type="video/mp4">
             </video>
             <div
               style="font-size:0.66em;font-weight:600;color:var(--green);margin-top:8px;">
-              Lidar &mdash; ATLID</div>
-            <div class="label" style="margin-top:1px;">EarthCARE</div>
+              Lidar</div>
+            <div class="label" style="margin-top:1px;"><strong>laser</strong> :
+              sensible aux <strong>petites particules</strong>, mais vite
+              &eacute;teint <br> &rarr; seulement le <strong>haut du
+                nuage</strong></div>
           </div>
           <div style="text-align:center;">
             <video autoplay muted loop playsinline
-              style="height:230px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.10);">
+              style="height:212px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.10);">
               <source src="csi_1/assets/cpr.mp4" type="video/mp4">
             </video>
             <div
               style="font-size:0.66em;font-weight:600;color:var(--teal);margin-top:8px;">
-              Radar &mdash; CPR</div>
-            <div class="label" style="margin-top:1px;">EarthCARE</div>
+              Radar</div>
+            <div class="label" style="margin-top:1px;"><strong>onde
+                radio</strong> : sensible aux <strong>grosses
+                particules</strong> (gouttes, glace) <br> &rarr; traverse
+              <strong>toute l'&eacute;paisseur</strong> du nuage</div>
           </div>
         </div>
-        <div class="highlight-box orange fragment" style="margin-top:16px;">
-          2D dense vu d'en haut, profils verticaux pr&eacute;cis mais
-          &eacute;pars :
-          <strong>aucune v&eacute;rit&eacute;-terrain 3D dense</strong>.
-        </div>
+
+        <p style="margin:14px 0 4px 0;">On observe les nuages :</p>
+        <ul style="margin:0 0 0 0.6em;line-height:1.6;">
+          <li class="fragment">en <strong>2D vu d'en haut</strong>
+            <span style="color:#888;">(imageurs passifs)</span></li>
+          <li class="fragment">en <strong>2D vertical</strong>, sous le passage
+            des satellites <span style="color:#888;">(radar, lidar)</span></li>
+          <li class="fragment" style="color:var(--red);"><strong>on ne les
+              observe jamais en 3D !</strong></li>
+        </ul>
       </section>
 
-      <!-- ============ SLIDE 6: Objectif de la thèse ============ -->
+      <!-- ============ SLIDE 7: Objectif de la thèse ============ -->
       <section class="center-slide">
         <h2>Objectif de la thèse</h2>
-        <div class="highlight-box" style="font-size:1.05em;max-width:80%;">
-          Trouver un <strong>ensemble minimal d'informations</strong> permettant
-          de recréer la structure 3D d'un nuage &mdash; à partir de sources
-          d'observation hétérogènes et incomplètes.
+        <div class="highlight-box" style="font-size:1.05em;max-width:82%;">
+          <strong>Reconstruction 3D précise et réaliste des nuages</strong>
+          à partir d’observations 2D et de supervision
+          <strong>parcimonieuse</strong>, via des modèles
+          <strong>multimodaux</strong> et <strong>génératifs</strong>
+          permettant de <strong>quantifier l’incertitude</strong>.
         </div>
       </section>
 
-      <!-- ============ SLIDE 7: Équipe ============ -->
+      <!-- ============ SLIDE 8: Équipe ============ -->
       <section>
         <h2>Équipe d'encadrement pluridisciplinaire</h2>
         <div
           style="display:flex;gap:18px;margin-top:16px;justify-content:center;">
           <div class="team-card fragment">
-            <img src="csi_1/assets/loic.png" class="avatar" style="object-fit:cover;">
+            <img src="csi_1/assets/loic.png" class="avatar"
+              style="object-fit:cover;">
             <div class="name">Loïc Landrieu</div>
-            <div class="role">ENPC &mdash; <em>directeur de thèse</em></div>
+            <div class="role">ENPC / LIGM, <em>directeur de thèse</em>
+            </div>
             <div class="role" style="color:var(--blue);">Machine Learning,<br>3D
               &amp; télédétection</div>
           </div>
@@ -972,7 +1293,8 @@
               Télédétection<br>atmosphérique</div>
           </div>
           <div class="team-card fragment">
-            <img src="csi_1/assets/kara.png" class="avatar" style="object-fit:cover;">
+            <img src="csi_1/assets/kara.png" class="avatar"
+              style="object-fit:cover;">
             <div class="name">Kara D. Lamb</div>
             <div class="role">Columbia</div>
             <div class="role" style="color:var(--green);">Simulation de
@@ -989,98 +1311,104 @@
         </div>
       </section>
 
-      <!-- ============ SLIDE 8: État de l'art - target 2D sparse ============ -->
+      <!-- ============ SLIDE 9: État de l'art - target 2D sparse ============ -->
       <section>
-        <h2>État de l'art : prédiction 3D depuis une cible 2D éparse</h2>
+        <h2>État de l'art : prédiction 3D depuis une cible 2D sparse</h2>
         <p>Les approches existantes tentent de prédire la structure 3D du nuage
-          en s'entraînant contre les rares vérités-terrain 3D disponibles
-          (traces radar/lidar) &mdash; une supervision <strong>éparse</strong>.
+          en s'entraînant contre une <strong>vérité-terrain sparse</strong>
+          (traces radar/lidar)
         </p>
         <div class="fragment" style="text-align:center;margin-top:8px;">
           <img src="csi_1/assets/problem_def.png"
-            style="width:85%;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-          <div class="label">Input : observation 2D (trace) &rarr; Modèle &rarr;
-            Output : voxels 3D, supervisés uniquement le long de la trace éparse
-          </div>
+            style="width:85%;border-radius:4px;box-shadow:none;">
+          <!-- <div class="label">Input : observation 2D (trace) &rarr; Modèle &rarr;
+            Output : voxels 3D, supervisés uniquement le long de la trace sparse
+          </div> -->
         </div>
       </section>
 
-      <!-- ============ SLIDE 9: Prédictions floues ============ -->
+      <!-- ============ SLIDE 10: Prédictions floues ============ -->
       <section>
-        <h2>Un probl&egrave;me r&eacute;current : des pr&eacute;dictions floues</h2>
-        <div class="two-col" style="grid-template-columns:1.18fr 0.82fr;gap:20px;align-items:stretch;">
-          <div style="display:flex;flex-direction:column;justify-content:center;">
-            <div class="fragment" style="text-align:center;margin-bottom:6px;">
-              <img src="csi_1/assets/topview137_overpass.png"
-                style="height:132px;width:auto;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.12);">
-              <div class="label" style="font-size:0.46em;">vue de dessus (entr&eacute;e)
-                &mdash; <span style="color:var(--red);font-weight:600;">trace du
-                  satellite</span> = plan de coupe</div>
-            </div>
-            <div class="fragment" style="display:flex;gap:8px;">
-              <div style="flex:1;">
-                <img src="csi_1/assets/curtain137_seed0.png"
-                  style="width:100%;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.12);">
-                <div class="label" style="font-size:0.46em;">nuage possible 1</div>
-              </div>
-              <div style="flex:1;">
-                <img src="csi_1/assets/curtain137_seed1.png"
-                  style="width:100%;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.12);">
-                <div class="label" style="font-size:0.46em;">nuage possible 2</div>
-              </div>
-              <div style="flex:1;">
-                <img src="csi_1/assets/curtain137_seed2.png"
-                  style="width:100%;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.12);">
-                <div class="label" style="font-size:0.46em;">nuage possible 3</div>
-              </div>
-            </div>
-            <div class="fragment"
-              style="text-align:center;font-size:1.15em;color:#bbb;margin:2px 0 0 0;">
-              &darr;&nbsp;moyenne&nbsp;&darr;</div>
-            <div class="fragment" style="text-align:center;">
-              <img src="csi_1/assets/curtain137_mean.png"
-                style="width:72%;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.12);">
-              <div class="label" style="font-size:0.46em;">moyenne des
-                &eacute;chantillons &rarr; structures fines perdues,
-                r&eacute;sultat flou</div>
-            </div>
+        <h2>Un probl&egrave;me r&eacute;current : des pr&eacute;dictions floues
+        </h2>
+        <!-- Grille alignée ligne à ligne : gauche / droite -->
+        <div class="s9-grid">
+
+          <!-- ligne 1 : vue de dessus | vérité-terrain -->
+          <div class="fragment s9-top" data-fragment-index="1"
+            style="text-align:center;">
+            <img src="csi_1/assets/topview137_overpass.png">
+            <div class="label" style="font-size:0.46em;">vue de dessus
+              (entr&eacute;e)
+              : la <span style="color:var(--red);font-weight:600;">trace du
+                satellite</span> = plan de coupe</div>
           </div>
-          <div>
-            <div class="pstack">
-              <div class="prow">
-                <div class="plab">Pr&eacute;diction mod&egrave;le FDL
-                  <span class="pcite">(Girtsou <em>et al.</em>, ML4PS 2025)</span>
-                </div>
-                <img src="csi_1/assets/patch00137_fdl_pred.png">
-              </div>
-              <div class="prow">
-                <div class="plab">Pr&eacute;diction mod&egrave;le ICN
-                  <span class="pcite">(Jeggle <em>et al.</em>, AIES 2025)</span>
-                </div>
-                <img src="csi_1/assets/patch00137_icn_pred.png">
-              </div>
-              <div class="prow gt">
-                <div class="plab">V&eacute;rit&eacute;-terrain</div>
-                <img src="csi_1/assets/patch00137_icn_target.png">
-              </div>
-            </div>
-            <div class="cbar">
+          <div class="prow gt fragment" data-fragment-index="1">
+            <div class="plab">V&eacute;rit&eacute;-terrain</div>
+            <img src="csi_1/assets/patch00137_icn_target.png">
+            <div class="cbar" style="margin-top:3px;">
               <img src="csi_1/assets/iwc_colorbar.png" class="cbar-img">
             </div>
           </div>
-        </div>
-        <div class="highlight-box orange fragment" style="margin-top:6px;">
-          Le mod&egrave;le ne sait pas laquelle des possibilit&eacute;s est la
-          bonne, il "moyenne" toutes les options compatibles avec
-          l'entr&eacute;e &mdash; d'o&ugrave; le flou.
+
+          <!-- ligne 2 : nuages possibles | prédiction FDL -->
+          <div class="fragment s9-seeds" data-fragment-index="2"
+            style="display:flex;gap:8px;">
+            <div style="flex:1;">
+              <img src="csi_1/assets/curtain137_seed0.png">
+              <div class="label" style="font-size:0.46em;">nuage possible 1
+              </div>
+            </div>
+            <div style="flex:1;">
+              <img src="csi_1/assets/curtain137_seed1.png">
+              <div class="label" style="font-size:0.46em;">nuage possible 2
+              </div>
+            </div>
+            <div style="flex:1;">
+              <img src="csi_1/assets/curtain137_seed2.png">
+              <div class="label" style="font-size:0.46em;">nuage possible 3
+              </div>
+            </div>
+          </div>
+          <div class="prow fragment" data-fragment-index="4">
+            <div class="plab">Pr&eacute;diction FDL
+              <span class="pcite">(Girtsou <em>et al.</em>, 2025)</span>
+            </div>
+            <img src="csi_1/assets/patch00137_fdl_pred.png">
+          </div>
+
+          <!-- ligne 3 : moyenne | prédiction ICN -->
+          <div class="fragment s9-mean" data-fragment-index="3"
+            style="text-align:center;">
+            <div style="font-size:1.05em;color:#bbb;margin:0 0 2px 0;">
+              &darr;&nbsp;moyenne&nbsp;&darr;</div>
+            <img src="csi_1/assets/curtain137_mean.png">
+          </div>
+          <div class="prow fragment" data-fragment-index="4">
+            <div class="plab">Pr&eacute;diction ICN
+              <span class="pcite">(Jeggle <em>et al.</em>, 2025)</span>
+            </div>
+            <img src="csi_1/assets/patch00137_icn_pred.png">
+          </div>
+
+          <!-- ligne 4 : (vide) | modèle souhaité -->
+          <div></div>
+          <div class="prow fragment" data-fragment-index="5"
+            style="border-top:1px dashed #d8d8d8;padding-top:4px;">
+            <div class="plab" style="color:var(--green);">Mod&egrave;le
+              souhait&eacute; <span class="pcite">(un &eacute;chantillon,
+                net)</span>
+            </div>
+            <img src="csi_1/assets/curtain137_seed0.png">
+          </div>
         </div>
       </section>
 
-      <!-- ============ SLIDE 10: Teaser ============ -->
+      <!-- ============ SLIDE 11: Teaser ============ -->
       <section>
         <h2>Teaser : qu'est ce qu'on veut faire ?</h2>
         <div class="two-col"
-          style="grid-template-columns:270px auto 290px;justify-content:center;gap:10px;align-items:center;">
+          style="grid-template-columns:270px auto 290px;justify-content:center;gap:10px;align-items:center;padding-bottom:64px;">
           <div style="position:relative;">
             <img src="csi_1/assets/patch10_topview_seviri.png"
               style="width:100%;height:auto;margin:0;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,0.12);">
@@ -1105,8 +1433,8 @@
                   <path d="M0,0 L6,3 L0,6 z" fill="#000"></path>
                 </marker>
               </defs>
-              <line x1="0" y1="7" x2="24" y2="7" stroke="#000"
-                stroke-width="2" marker-end="url(#ah-black)"></line>
+              <line x1="0" y1="7" x2="24" y2="7" stroke="#000" stroke-width="2"
+                marker-end="url(#ah-black)"></line>
             </svg>
             <div class="model-box">Notre<br>mod&egrave;le</div>
           </div>
@@ -1114,42 +1442,53 @@
           <div
             style="display:flex;flex-direction:column;gap:8px;position:relative;">
             <div style="display:flex;align-items:center;gap:4px;">
-              <svg width="34" height="14" viewBox="0 0 34 14" style="overflow:visible;flex:0 0 auto;"><line x1="0" y1="7" x2="28" y2="7" stroke="#000" stroke-width="2" marker-end="url(#ah-black)"></line></svg>
+              <svg width="34" height="14" viewBox="0 0 34 14"
+                style="overflow:visible;flex:0 0 auto;">
+                <line x1="0" y1="7" x2="28" y2="7" stroke="#000"
+                  stroke-width="2" marker-end="url(#ah-black)"></line>
+              </svg>
               <img src="csi_1/assets/teaser_render_1.png"
                 style="width:100%;height:auto;display:block;margin:0;border-radius:4px;">
             </div>
             <div style="display:flex;align-items:center;gap:4px;">
-              <svg width="34" height="14" viewBox="0 0 34 14" style="overflow:visible;flex:0 0 auto;"><line x1="0" y1="7" x2="28" y2="7" stroke="#000" stroke-width="2" marker-end="url(#ah-black)"></line></svg>
+              <svg width="34" height="14" viewBox="0 0 34 14"
+                style="overflow:visible;flex:0 0 auto;">
+                <line x1="0" y1="7" x2="28" y2="7" stroke="#000"
+                  stroke-width="2" marker-end="url(#ah-black)"></line>
+              </svg>
               <img src="csi_1/assets/teaser_render_2.jpg"
                 style="width:100%;height:auto;display:block;margin:0;border-radius:4px;">
             </div>
             <div style="display:flex;align-items:center;gap:4px;">
-              <svg width="34" height="14" viewBox="0 0 34 14" style="overflow:visible;flex:0 0 auto;"><line x1="0" y1="7" x2="28" y2="7" stroke="#000" stroke-width="2" marker-end="url(#ah-black)"></line></svg>
+              <svg width="34" height="14" viewBox="0 0 34 14"
+                style="overflow:visible;flex:0 0 auto;">
+                <line x1="0" y1="7" x2="28" y2="7" stroke="#000"
+                  stroke-width="2" marker-end="url(#ah-black)"></line>
+              </svg>
               <img src="csi_1/assets/teaser_render_3.jpg"
                 style="width:100%;height:auto;display:block;margin:0;border-radius:4px;">
             </div>
             <div class="label"
               style="position:absolute;top:100%;left:0;right:0;margin-top:4px;">
-              Sortie : plusieurs nuages 3D <em>diff&eacute;rents</em>, tous
+              Sortie : plusieurs nuages 3D <em>diff&eacute;rents</em>,
               compatibles avec la m&ecirc;me entr&eacute;e</div>
           </div>
         </div>
         <div class="highlight-box green fragment" style="margin-top:10px;">
           Au lieu d'une seule reconstruction floue, on veut
-          <strong>&eacute;chantillonner</strong> plusieurs volumes nets et
-          plausibles &mdash; la diversit&eacute; remplace le flou.
+          <strong>&eacute;chantillonner</strong> plusieurs volumes nets
+          plausibles.
         </div>
       </section>
 
-      <!-- ============ SLIDE 11: Flow matching (interactif) + problème ============ -->
+      <!-- ============ SLIDE 12: Flow matching (interactif) + problème ============ -->
       <section id="slide-flow">
         <h2>Notre outil : le <em>flow matching</em></h2>
         <div class="highlight-box">
-          Le mod&egrave;le apprend un <strong>chemin continu</strong> qui
-          transporte du bruit vers la donn&eacute;e : il pr&eacute;dit, en
-          chaque point, la <strong>direction</strong> &agrave; suivre &mdash;
-          au lieu de pr&eacute;dire une seule sortie "moyenne", il peut
-          g&eacute;n&eacute;rer plusieurs sorties diverses et nettes.
+          <div>Le mod&egrave;le apprend &agrave; <strong>transporter une
+              distribution arbitraire</strong> (une gaussienne) vers une
+            <strong>distribution cible</strong>, ici celle des profils
+            verticaux 2D de nuages.</div>
         </div>
 
         <span class="dstep fragment" data-fragment-index="0"></span>
@@ -1160,71 +1499,67 @@
         <span class="dstep fragment" data-fragment-index="5"></span>
         <span class="dstep fragment" data-fragment-index="6"></span>
         <span class="dstep fragment" data-fragment-index="7"></span>
+        <span class="dstep fragment" data-fragment-index="8"></span>
 
         <div class="dwrap" data-stage="0">
           <div class="dhead">
             <div class="dnote" id="head-base">
-              <span style="flex:0 0 auto;font-weight:600;">Donn&eacute;e</span>
+              <span style="flex:0 0 auto;font-weight:600;">Bruit
+                <span style="font-weight:400;color:#999;">(t = 0)</span></span>
               <span style="flex:1;height:1px;background:#ccc;"></span>
-              <span style="flex:0 0 auto;">interpolation lin&eacute;aire &rarr;</span>
-              <span style="flex:1;height:1px;background:#ccc;"></span>
-              <span style="flex:0 0 auto;font-weight:600;">Bruit</span>
+              <span style="flex:0 0 auto;font-weight:600;">Image
+                <span style="font-weight:400;color:#999;">(t = 1)</span></span>
             </div>
             <div class="dnote" id="head-train" style="color:var(--red);">
               <span style="flex:1;height:1px;background:#e3c9c6;"></span>
               <span style="flex:0 0 auto;font-weight:700;">Entra&icirc;nement :
-                un couple (cible, version bruit&eacute;e) &agrave; la fois</span>
+                un couple (cible, version bruit&eacute;e) &agrave; la
+                fois</span>
               <span style="flex:1;height:1px;background:#e3c9c6;"></span>
             </div>
             <div class="dnote" id="head-inf" style="color:var(--blue);">
               <span style="flex:1;height:1px;background:#cdd8ea;"></span>
-              <span style="flex:0 0 auto;font-weight:700;">G&eacute;n&eacute;ration :
-                du bruit pur vers la donn&eacute;e, pas &agrave; pas</span>
+              <span
+                style="flex:0 0 auto;font-weight:700;">G&eacute;n&eacute;ration
+                :
+                du bruit pur ($t=0$) vers l'image ($t=1$)</span>
               <span style="flex:1;height:1px;background:#cdd8ea;"></span>
             </div>
           </div>
 
           <div class="dstrip">
-            <div class="dcell c0"><img src="csi_1/assets/curtain_diff_0.png">
+            <div class="dcell c0"><img src="csi_1/assets/curtain_diff_5.png">
               <div class="ts">t = 0</div>
             </div>
-            <div class="dcell c1"><img src="csi_1/assets/curtain_diff_1.png">
+            <div class="dcell c1"><img src="csi_1/assets/curtain_diff_4.png">
               <div class="ts">t = 0,2</div>
             </div>
-            <div class="dcell c2"><img src="csi_1/assets/curtain_diff_2.png">
+            <div class="dcell c2"><img src="csi_1/assets/curtain_diff_3.png">
               <div class="ts">t = 0,4</div>
             </div>
-            <div class="dcell c3"><img src="csi_1/assets/curtain_diff_3.png">
+            <div class="dcell c3"><img src="csi_1/assets/curtain_diff_2.png">
               <div class="ts">t = 0,6</div>
             </div>
-            <div class="dcell c4"><img src="csi_1/assets/curtain_diff_4.png">
+            <div class="dcell c4"><img src="csi_1/assets/curtain_diff_1.png">
               <div class="ts">t = 0,8</div>
             </div>
-            <div class="dcell c5"><img src="csi_1/assets/curtain_diff_5.png">
+            <div class="dcell c5"><img src="csi_1/assets/curtain_diff_0.png">
               <div class="ts">t = 1</div>
             </div>
           </div>
 
           <div class="darrows">
-            <svg class="darr" id="arr-train-4" viewBox="0 0 600 24">
+            <svg class="darr" id="arr-transport" viewBox="0 0 600 24">
               <defs>
-                <marker id="m-arr-train-4" viewBox="0 0 10 10" refX="9" refY="5"
+                <marker id="m-arr-transport" viewBox="0 0 10 10" refX="9" refY="5"
                   markerWidth="5" markerHeight="5" orient="auto">
-                  <path d="M0,0 L10,5 L0,10 z" fill="#C0392B" />
+                  <path d="M0,0 L10,5 L0,10 z" fill="#5a6b7f" />
                 </marker>
               </defs>
-              <path d="M450,2 C450,20 50,20 50,3" fill="none" stroke="#C0392B"
-                stroke-width="0.8" stroke-dasharray="3,2" marker-end="url(#m-arr-train-4)" />
-            </svg>
-            <svg class="darr" id="arr-train-2" viewBox="0 0 600 24">
-              <defs>
-                <marker id="m-arr-train-2" viewBox="0 0 10 10" refX="9" refY="5"
-                  markerWidth="5" markerHeight="5" orient="auto">
-                  <path d="M0,0 L10,5 L0,10 z" fill="#C0392B" />
-                </marker>
-              </defs>
-              <path d="M250,2 C250,20 50,20 50,3" fill="none" stroke="#C0392B"
-                stroke-width="0.8" stroke-dasharray="3,2" marker-end="url(#m-arr-train-2)" />
+              <path d="M215,9 L385,9" fill="none" stroke="#5a6b7f"
+                stroke-width="1.1" marker-end="url(#m-arr-transport)" />
+              <text x="300" y="5" text-anchor="middle" font-size="7"
+                fill="#5a6b7f" font-family="Crimson Pro, serif">transport appris</text>
             </svg>
             <svg class="darr" id="arr-train-1" viewBox="0 0 600 24">
               <defs>
@@ -1233,56 +1568,46 @@
                   <path d="M0,0 L10,5 L0,10 z" fill="#C0392B" />
                 </marker>
               </defs>
-              <path d="M150,2 C150,20 50,20 50,3" fill="none" stroke="#C0392B"
-                stroke-width="0.8" stroke-dasharray="3,2" marker-end="url(#m-arr-train-1)" />
+              <path d="M150,2 C150,20 550,20 550,3" fill="none" stroke="#C0392B"
+                stroke-width="0.8" stroke-dasharray="3,2"
+                marker-end="url(#m-arr-train-1)" />
             </svg>
-            <svg class="darr" id="arr-inf-5" viewBox="0 0 600 24">
+            <svg class="darr" id="arr-train-2" viewBox="0 0 600 24">
               <defs>
-                <marker id="m-arr-inf-5" viewBox="0 0 10 10" refX="9" refY="5"
+                <marker id="m-arr-train-2" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#C0392B" />
+                </marker>
+              </defs>
+              <path d="M250,2 C250,20 550,20 550,3" fill="none" stroke="#C0392B"
+                stroke-width="0.8" stroke-dasharray="3,2"
+                marker-end="url(#m-arr-train-2)" />
+            </svg>
+            <svg class="darr" id="arr-train-4" viewBox="0 0 600 24">
+              <defs>
+                <marker id="m-arr-train-4" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#C0392B" />
+                </marker>
+              </defs>
+              <path d="M450,2 C450,20 550,20 550,3" fill="none" stroke="#C0392B"
+                stroke-width="0.8" stroke-dasharray="3,2"
+                marker-end="url(#m-arr-train-4)" />
+            </svg>
+            <svg class="darr" id="arr-inf-one" viewBox="0 0 600 24">
+              <defs>
+                <marker id="m-arr-inf-one" viewBox="0 0 10 10" refX="9" refY="5"
                   markerWidth="5" markerHeight="5" orient="auto">
                   <path d="M0,0 L10,5 L0,10 z" fill="#4472C4" />
                 </marker>
               </defs>
-              <path d="M524,9 L476,9" fill="none" stroke="#4472C4" stroke-width="1"
-                marker-end="url(#m-arr-inf-5)" />
-              <text x="500" y="5" text-anchor="middle" font-size="7" fill="#4472C4"
-                font-family="Crimson Pro, serif" font-style="italic">v<tspan baseline-shift="sub" font-size="4.5">&#952;</tspan></text>
-            </svg>
-            <svg class="darr" id="arr-inf-4" viewBox="0 0 600 24">
-              <defs>
-                <marker id="m-arr-inf-4" viewBox="0 0 10 10" refX="9" refY="5"
-                  markerWidth="5" markerHeight="5" orient="auto">
-                  <path d="M0,0 L10,5 L0,10 z" fill="#4472C4" />
-                </marker>
-              </defs>
-              <path d="M424,9 L376,9" fill="none" stroke="#4472C4" stroke-width="1"
-                marker-end="url(#m-arr-inf-4)" />
-              <text x="400" y="5" text-anchor="middle" font-size="7" fill="#4472C4"
-                font-family="Crimson Pro, serif" font-style="italic">v<tspan baseline-shift="sub" font-size="4.5">&#952;</tspan></text>
-            </svg>
-            <svg class="darr" id="arr-inf-3" viewBox="0 0 600 24">
-              <defs>
-                <marker id="m-arr-inf-3" viewBox="0 0 10 10" refX="9" refY="5"
-                  markerWidth="5" markerHeight="5" orient="auto">
-                  <path d="M0,0 L10,5 L0,10 z" fill="#4472C4" />
-                </marker>
-              </defs>
-              <path d="M324,9 L276,9" fill="none" stroke="#4472C4" stroke-width="1"
-                marker-end="url(#m-arr-inf-3)" />
-              <text x="300" y="5" text-anchor="middle" font-size="7" fill="#4472C4"
-                font-family="Crimson Pro, serif" font-style="italic">v<tspan baseline-shift="sub" font-size="4.5">&#952;</tspan></text>
-            </svg>
-            <svg class="darr" id="arr-inf-2" viewBox="0 0 600 24">
-              <defs>
-                <marker id="m-arr-inf-2" viewBox="0 0 10 10" refX="9" refY="5"
-                  markerWidth="5" markerHeight="5" orient="auto">
-                  <path d="M0,0 L10,5 L0,10 z" fill="#4472C4" />
-                </marker>
-              </defs>
-              <path d="M224,9 L176,9" fill="none" stroke="#4472C4" stroke-width="1"
-                marker-end="url(#m-arr-inf-2)" />
-              <text x="200" y="5" text-anchor="middle" font-size="7" fill="#4472C4"
-                font-family="Crimson Pro, serif" font-style="italic">v<tspan baseline-shift="sub" font-size="4.5">&#952;</tspan></text>
+              <path d="M76,9 L524,9" fill="none" stroke="#4472C4"
+                stroke-width="1" marker-end="url(#m-arr-inf-one)" />
+              <text x="300" y="5" text-anchor="middle" font-size="7"
+                fill="#4472C4" font-family="Crimson Pro, serif"
+                font-style="italic">v<tspan baseline-shift="sub"
+                  font-size="4.5">&#952;</tspan><tspan
+                  font-style="normal">&#8201;&#215;&#8201;1</tspan></text>
             </svg>
             <svg class="darr" id="arr-inf-1" viewBox="0 0 600 24">
               <defs>
@@ -1291,234 +1616,240 @@
                   <path d="M0,0 L10,5 L0,10 z" fill="#4472C4" />
                 </marker>
               </defs>
-              <path d="M124,9 L76,9" fill="none" stroke="#4472C4" stroke-width="1"
-                marker-end="url(#m-arr-inf-1)" />
-              <text x="100" y="5" text-anchor="middle" font-size="7" fill="#4472C4"
-                font-family="Crimson Pro, serif" font-style="italic">v<tspan baseline-shift="sub" font-size="4.5">&#952;</tspan></text>
+              <path d="M76,9 L124,9" fill="none" stroke="#4472C4"
+                stroke-width="1" marker-end="url(#m-arr-inf-1)" />
+              <text x="100" y="5" text-anchor="middle" font-size="7"
+                fill="#4472C4" font-family="Crimson Pro, serif"
+                font-style="italic">v<tspan baseline-shift="sub"
+                  font-size="4.5">&#952;</tspan><tspan
+                  font-style="normal">&#8201;&#215;&#8201;0,2</tspan></text>
+            </svg>
+            <svg class="darr" id="arr-inf-2" viewBox="0 0 600 24">
+              <defs>
+                <marker id="m-arr-inf-2" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#4472C4" />
+                </marker>
+              </defs>
+              <path d="M176,9 L224,9" fill="none" stroke="#4472C4"
+                stroke-width="1" marker-end="url(#m-arr-inf-2)" />
+              <text x="200" y="5" text-anchor="middle" font-size="7"
+                fill="#4472C4" font-family="Crimson Pro, serif"
+                font-style="italic">v<tspan baseline-shift="sub"
+                  font-size="4.5">&#952;</tspan><tspan
+                  font-style="normal">&#8201;&#215;&#8201;0,2</tspan></text>
+            </svg>
+            <svg class="darr" id="arr-inf-3" viewBox="0 0 600 24">
+              <defs>
+                <marker id="m-arr-inf-3" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#4472C4" />
+                </marker>
+              </defs>
+              <path d="M276,9 L324,9" fill="none" stroke="#4472C4"
+                stroke-width="1" marker-end="url(#m-arr-inf-3)" />
+              <text x="300" y="5" text-anchor="middle" font-size="7"
+                fill="#4472C4" font-family="Crimson Pro, serif"
+                font-style="italic">v<tspan baseline-shift="sub"
+                  font-size="4.5">&#952;</tspan><tspan
+                  font-style="normal">&#8201;&#215;&#8201;0,2</tspan></text>
+            </svg>
+            <svg class="darr" id="arr-inf-4" viewBox="0 0 600 24">
+              <defs>
+                <marker id="m-arr-inf-4" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#4472C4" />
+                </marker>
+              </defs>
+              <path d="M376,9 L424,9" fill="none" stroke="#4472C4"
+                stroke-width="1" marker-end="url(#m-arr-inf-4)" />
+              <text x="400" y="5" text-anchor="middle" font-size="7"
+                fill="#4472C4" font-family="Crimson Pro, serif"
+                font-style="italic">v<tspan baseline-shift="sub"
+                  font-size="4.5">&#952;</tspan><tspan
+                  font-style="normal">&#8201;&#215;&#8201;0,2</tspan></text>
+            </svg>
+            <svg class="darr" id="arr-inf-5" viewBox="0 0 600 24">
+              <defs>
+                <marker id="m-arr-inf-5" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#4472C4" />
+                </marker>
+              </defs>
+              <path d="M476,9 L524,9" fill="none" stroke="#4472C4"
+                stroke-width="1" marker-end="url(#m-arr-inf-5)" />
+              <text x="500" y="5" text-anchor="middle" font-size="7"
+                fill="#4472C4" font-family="Crimson Pro, serif"
+                font-style="italic">v<tspan baseline-shift="sub"
+                  font-size="4.5">&#952;</tspan><tspan
+                  font-style="normal">&#8201;&#215;&#8201;0,2</tspan></text>
             </svg>
           </div>
 
           <div class="dnotes">
-            <div class="dnote" id="note-base">
-              &larr;&nbsp;&agrave; gauche la donn&eacute;e r&eacute;elle, &agrave;
-              droite du bruit pur : le mod&egrave;le apprend le chemin de retour&nbsp;&rarr;
+            <div class="dnote" id="note-transport">
+              Le mod&egrave;le apprend le <strong>champ de vitesse</strong> qui
+              transporte le bruit vers la distribution des images.
             </div>
-            <div class="dnote" id="note-train-4">
-              <b>It&eacute;ration d'entra&icirc;nement :</b> on tire
-              $t=0{,}8$ au hasard et on interpole la cible avec du bruit &mdash;
-              $x_t=(1-t)\,x_0+t\,\varepsilon$, $\varepsilon\sim\mathcal{N}(0,I)$.
-              Le r&eacute;seau pr&eacute;dit la
-              direction $v_\theta(x_t,t)\approx \varepsilon-x_0$ ;
-              perte $\lVert v_\theta(x_t,t)-(\varepsilon-x_0)\rVert^2$.
-            </div>
-            <div class="dnote" id="note-train-2">
-              <b>It&eacute;ration d'entra&icirc;nement :</b> on tire
-              $t=0{,}4$ au hasard et on interpole la cible avec du bruit &mdash;
-              $x_t=(1-t)\,x_0+t\,\varepsilon$, $\varepsilon\sim\mathcal{N}(0,I)$.
-              Le r&eacute;seau pr&eacute;dit la
-              direction $v_\theta(x_t,t)\approx \varepsilon-x_0$ ;
-              perte $\lVert v_\theta(x_t,t)-(\varepsilon-x_0)\rVert^2$.
-            </div>
-            <div class="dnote" id="note-train-1">
-              <b>It&eacute;ration d'entra&icirc;nement :</b> on tire
-              $t=0{,}2$ au hasard et on interpole la cible avec du bruit &mdash;
-              $x_t=(1-t)\,x_0+t\,\varepsilon$, $\varepsilon\sim\mathcal{N}(0,I)$.
-              Le r&eacute;seau pr&eacute;dit la
-              direction $v_\theta(x_t,t)\approx \varepsilon-x_0$ ;
-              perte $\lVert v_\theta(x_t,t)-(\varepsilon-x_0)\rVert^2$.
-            </div>
-            <div class="dnote" id="note-inf-5">
-              <b>G&eacute;n&eacute;ration, pas 1/5 :</b> on part d'un bruit pur $x_1\sim\mathcal{N}(0,I)$.
-              On &eacute;value le r&eacute;seau en $t=1$ et on avance d'un pas
-              $\Delta t=0{,}2$ :
-              $x_{0{,}8}=x_{1}-\Delta t\; v_\theta(x_{1},\,1)$.
-            </div>
-            <div class="dnote" id="note-inf-4">
-              <b>G&eacute;n&eacute;ration, pas 2/5 :</b> on repart de $x_{0{,}8}$ obtenu &agrave; l'&eacute;tape pr&eacute;c&eacute;dente.
-              On &eacute;value le r&eacute;seau en $t=0{,}8$ et on avance d'un pas
-              $\Delta t=0{,}2$ :
-              $x_{0{,}6}=x_{0{,}8}-\Delta t\; v_\theta(x_{0{,}8},\,0{,}8)$.
-            </div>
-            <div class="dnote" id="note-inf-3">
-              <b>G&eacute;n&eacute;ration, pas 3/5 :</b> on repart de $x_{0{,}6}$ obtenu &agrave; l'&eacute;tape pr&eacute;c&eacute;dente.
-              On &eacute;value le r&eacute;seau en $t=0{,}6$ et on avance d'un pas
-              $\Delta t=0{,}2$ :
-              $x_{0{,}4}=x_{0{,}6}-\Delta t\; v_\theta(x_{0{,}6},\,0{,}6)$.
-            </div>
-            <div class="dnote" id="note-inf-2">
-              <b>G&eacute;n&eacute;ration, pas 4/5 :</b> on repart de $x_{0{,}4}$ obtenu &agrave; l'&eacute;tape pr&eacute;c&eacute;dente.
-              On &eacute;value le r&eacute;seau en $t=0{,}4$ et on avance d'un pas
-              $\Delta t=0{,}2$ :
-              $x_{0{,}2}=x_{0{,}4}-\Delta t\; v_\theta(x_{0{,}4},\,0{,}4)$.
-            </div>
-            <div class="dnote" id="note-inf-1">
-              <b>G&eacute;n&eacute;ration, pas 5/5 :</b> on repart de $x_{0{,}2}$ obtenu &agrave; l'&eacute;tape pr&eacute;c&eacute;dente.
-              On &eacute;value le r&eacute;seau en $t=0{,}2$ et on avance d'un pas
-              $\Delta t=0{,}2$ :
-              $x_{0}=x_{0{,}2}-\Delta t\; v_\theta(x_{0{,}2},\,0{,}2)$.
+            <div class="dnote" id="note-inf">
+              On <strong>estime &agrave; quoi ressemble l'image
+                d&eacute;bruit&eacute;e</strong><span
+                id="note-inf-dot">.</span><span id="note-inf-tail">, et on fait
+                un <strong>petit pas dans cette direction</strong>.</span>
             </div>
           </div>
+
         </div>
 
         <div class="dreserve">
-        <div class="highlight-box red fragment" data-fragment-index="8" style="margin-top:0;">
-          <div style="margin-bottom:8px;">
-            <strong>Probl&egrave;me :</strong> la v&eacute;rit&eacute;-terrain
-            est &eacute;parse &mdash; une seule
-            <em>coupe</em> traverse le volume 3D. On ne peut construire le
-            chemin bruit&nbsp;&rarr;&nbsp;donn&eacute;e que l&agrave; o&ugrave;
-            l'on observe.
+          <div class="highlight-box red fragment" data-fragment-index="9"
+            style="margin-top:0;">
+            <div style="margin-bottom:8px;">
+              <strong>Probl&egrave;me :</strong> la
+              v&eacute;rit&eacute;-terrain n'est qu'une <em>coupe</em> du volume
+              3D.
+            </div>
+            <div
+              style="display:flex;gap:26px;align-items:end;justify-content:center;margin:2px 0;font-size:0.55em;color:#8b6b68;font-weight:700;">
+              <div style="text-align:center;">
+                <div style="margin-bottom:2px;">Bruit</div>
+                <svg viewBox="0 0 140 120" style="height:96px;"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <clipPath id="box1">
+                      <polygon points="14,50 66,24 126,42 126,82 74,108 14,90" />
+                    </clipPath>
+                  </defs>
+                  <image href="csi_1/assets/vol_noise.png" x="8" y="20"
+                    width="124" height="92" preserveAspectRatio="none"
+                    clip-path="url(#box1)" opacity="1.00" />
+                  <g fill="none" stroke="#9aa8ba" stroke-width="0.9"
+                    stroke-dasharray="3,3">
+                    <path d="M66,24 L66,64 M14,90 L66,64 L126,82" />
+                  </g>
+                  <g fill="none" stroke="#6d7d92" stroke-width="1.3">
+                    <path d="M14,50 L66,24 L126,42" />
+                    <path d="M14,50 L74,68 L126,42" />
+                    <path d="M14,50 L14,90 M126,42 L126,82 M74,68 L74,108" />
+                    <path d="M14,90 L74,108 L126,82" />
+                  </g>
+                </svg>
+              </div>
+              <div style="text-align:center;">
+                <div style="margin-bottom:2px;">&nbsp;</div>
+                <svg viewBox="0 0 140 120" style="height:96px;"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <clipPath id="box2">
+                      <polygon points="14,50 66,24 126,42 126,82 74,108 14,90" />
+                    </clipPath>
+                    <clipPath id="cut2">
+                      <polygon points="30,42 110,50 110,90 30,82" />
+                    </clipPath>
+                  </defs>
+                  <image href="csi_1/assets/vol_noise.png" x="8" y="20"
+                    width="124" height="92" preserveAspectRatio="none"
+                    clip-path="url(#box2)" opacity="0.45" />
+                  <g fill="none" stroke="#9aa8ba" stroke-width="0.9"
+                    stroke-dasharray="3,3">
+                    <path d="M66,24 L66,64 M14,90 L66,64 L126,82" />
+                  </g>
+                  <line x1="30" y1="42" x2="110" y2="50" stroke="#2e7d32"
+                    stroke-width="1.2" />
+                  <image href="csi_1/assets/curtain_diff_3.png" x="30" y="42"
+                    width="80" height="48" preserveAspectRatio="none"
+                    clip-path="url(#cut2)" />
+                  <polygon points="30,42 110,50 110,90 30,82" fill="none"
+                    stroke="#2e7d32" stroke-width="1.2" />
+                  <g fill="none" stroke="#6d7d92" stroke-width="1.3">
+                    <path d="M14,50 L66,24 L126,42" />
+                    <path d="M14,50 L74,68 L126,42" />
+                    <path d="M14,50 L14,90 M126,42 L126,82 M74,68 L74,108" />
+                    <path d="M14,90 L74,108 L126,82" />
+                  </g>
+                  <g class="fragment" data-fragment-index="10"
+                    stroke="#C0392B" stroke-width="6" stroke-linecap="round">
+                    <path d="M32,32 L108,100" />
+                    <path d="M108,32 L32,100" />
+                  </g>
+                </svg>
+              </div>
+              <div style="text-align:center;">
+                <div style="margin-bottom:2px;">Donn&eacute;e</div>
+                <svg viewBox="0 0 140 120" style="height:96px;"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <clipPath id="box3">
+                      <polygon points="14,50 66,24 126,42 126,82 74,108 14,90" />
+                    </clipPath>
+                    <clipPath id="cut3">
+                      <polygon points="30,42 110,50 110,90 30,82" />
+                    </clipPath>
+                  </defs>
+                  <g fill="none" stroke="#9aa8ba" stroke-width="0.9"
+                    stroke-dasharray="3,3">
+                    <path d="M66,24 L66,64 M14,90 L66,64 L126,82" />
+                  </g>
+                  <line x1="30" y1="42" x2="110" y2="50" stroke="#2e7d32"
+                    stroke-width="1.2" />
+                  <image href="csi_1/assets/curtain_diff_0.png" x="30" y="42"
+                    width="80" height="48" preserveAspectRatio="none"
+                    clip-path="url(#cut3)" />
+                  <polygon points="30,42 110,50 110,90 30,82" fill="none"
+                    stroke="#2e7d32" stroke-width="1.2" />
+                  <g fill="none" stroke="#6d7d92" stroke-width="1.3">
+                    <path d="M14,50 L66,24 L126,42" />
+                    <path d="M14,50 L74,68 L126,42" />
+                    <path d="M14,50 L14,90 M126,42 L126,82 M74,68 L74,108" />
+                    <path d="M14,90 L74,108 L126,82" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+            <div class="fragment" data-fragment-index="10"
+              style="text-align:center;margin-top:4px;">
+              On <strong>ne peut pas construire les &eacute;tats
+                interm&eacute;diaires</strong> entre le bruit et la
+              donn&eacute;e sparse.
+            </div>
           </div>
-          <div
-            style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:0.55em;color:#8b6b68;">
-            <span style="flex:0 0 auto;font-weight:700;">Donn&eacute;e</span>
-            <span style="flex:1;height:1px;background:#e3c9c6;"></span>
-            <span style="flex:0 0 auto;">interpolation lin&eacute;aire &rarr;</span>
-            <span style="flex:1;height:1px;background:#e3c9c6;"></span>
-            <span style="flex:0 0 auto;font-weight:700;">Bruit</span>
-          </div>
-          <div
-            style="display:flex;gap:26px;align-items:center;justify-content:center;margin:2px 0;">
-            <svg viewBox="0 0 140 120" style="height:96px;"
-              xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <clipPath id="box1">
-                  <polygon points="14,50 66,24 126,42 126,82 74,108 14,90" />
-                </clipPath>
-                <clipPath id="cut1">
-                  <polygon points="30,42 110,50 110,90 30,82" />
-                </clipPath>
-              </defs>
-              <!-- arêtes cachées -->
-              <g fill="none" stroke="#9aa8ba" stroke-width="0.9"
-                stroke-dasharray="3,3">
-                <path d="M66,24 L66,64 M14,90 L66,64 L126,82" />
-              </g>
-              <line x1="30" y1="42" x2="110" y2="50" stroke="#2e7d32"
-                stroke-width="1.2" />
-              <!-- coupe observée -->
-              <image href="csi_1/assets/curtain_diff_0.png" x="30" y="42" width="80"
-                height="48" preserveAspectRatio="none" clip-path="url(#cut1)" />
-              <polygon points="30,42 110,50 110,90 30,82" fill="none"
-                stroke="#2e7d32" stroke-width="1.2" />
-              <!-- arêtes visibles -->
-              <g fill="none" stroke="#6d7d92" stroke-width="1.3">
-                <path d="M14,50 L66,24 L126,42" />
-                <path d="M14,50 L74,68 L126,42" />
-                <path d="M14,50 L14,90 M126,42 L126,82 M74,68 L74,108" />
-                <path d="M14,90 L74,108 L126,82" />
-              </g>
-            </svg>
-            <svg viewBox="0 0 140 120" style="height:96px;"
-              xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <clipPath id="box2">
-                  <polygon points="14,50 66,24 126,42 126,82 74,108 14,90" />
-                </clipPath>
-                <clipPath id="cut2">
-                  <polygon points="30,42 110,50 110,90 30,82" />
-                </clipPath>
-              </defs>
-              <image href="csi_1/assets/vol_noise.png" x="8" y="20" width="124"
-                height="92" preserveAspectRatio="none" clip-path="url(#box2)"
-                opacity="0.45" />
-              <!-- arêtes cachées -->
-              <g fill="none" stroke="#9aa8ba" stroke-width="0.9"
-                stroke-dasharray="3,3">
-                <path d="M66,24 L66,64 M14,90 L66,64 L126,82" />
-              </g>
-              <line x1="30" y1="42" x2="110" y2="50" stroke="#2e7d32"
-                stroke-width="1.2" />
-              <!-- coupe observée -->
-              <image href="csi_1/assets/curtain_diff_3.png" x="30" y="42" width="80"
-                height="48" preserveAspectRatio="none" clip-path="url(#cut2)" />
-              <polygon points="30,42 110,50 110,90 30,82" fill="none"
-                stroke="#2e7d32" stroke-width="1.2" />
-              <!-- arêtes visibles -->
-              <g fill="none" stroke="#6d7d92" stroke-width="1.3">
-                <path d="M14,50 L66,24 L126,42" />
-                <path d="M14,50 L74,68 L126,42" />
-                <path d="M14,50 L14,90 M126,42 L126,82 M74,68 L74,108" />
-                <path d="M14,90 L74,108 L126,82" />
-              </g>
-            </svg>
-            <svg viewBox="0 0 140 120" style="height:96px;"
-              xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <clipPath id="box3">
-                  <polygon points="14,50 66,24 126,42 126,82 74,108 14,90" />
-                </clipPath>
-                <clipPath id="cut3">
-                  <polygon points="30,42 110,50 110,90 30,82" />
-                </clipPath>
-              </defs>
-              <image href="csi_1/assets/vol_noise.png" x="8" y="20" width="124"
-                height="92" preserveAspectRatio="none" clip-path="url(#box3)"
-                opacity="1.00" />
-              <!-- arêtes cachées -->
-              <g fill="none" stroke="#9aa8ba" stroke-width="0.9"
-                stroke-dasharray="3,3">
-                <path d="M66,24 L66,64 M14,90 L66,64 L126,82" />
-              </g>
-              <!-- <line x1="30" y1="42" x2="110" y2="50" stroke="#2e7d32"
-                stroke-width="1.2" /> -->
-              <!-- coupe observée
-              <image href="csi_1/assets/curtain_diff_5.png" x="30" y="42" width="80"
-                height="48" preserveAspectRatio="none" clip-path="url(#cut3)" />
-              <polygon points="30,42 110,50 110,90 30,82" fill="none"
-                stroke="#2e7d32" stroke-width="1.2" /> -->
-              <!-- arêtes visibles -->
-              <g fill="none" stroke="#6d7d92" stroke-width="1.3">
-                <path d="M14,50 L66,24 L126,42" />
-                <path d="M14,50 L74,68 L126,42" />
-                <path d="M14,50 L14,90 M126,42 L126,82 M74,68 L74,108" />
-                <path d="M14,90 L74,108 L126,82" />
-              </g>
-            </svg>
-          </div>
-          <div
-            style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:0.55em;color:var(--red);">
-            <span style="flex:1;height:1px;background:#e3c9c6;"></span>
-            <span style="flex:0 0 auto;font-weight:700;">&#10007;&nbsp; l'input
-              de notre modèle est &eacute;pars, on ne peut pas apprendre le
-              champ de vitesse sur tout le volume</span>
-            <span style="flex:1;height:1px;background:#e3c9c6;"></span>
-          </div>
-        </div>
 
         </div>
       </section>
 
-      <!-- ============ SLIDE 12: Notre approche - Mikado ============ -->
+      <!-- ============ SLIDE 13: Mikado - entraînement 2D ============ -->
       <section>
-        <h2>Notre approche : Mikado</h2>
-        <div class="two-col" style="grid-template-columns:0.8fr 1.2fr;align-items:center;">
-          <div>
-            <img src="csi_1/assets/fm_scheme.png"
-              style="width:100%;">
-            <div class="label" style="font-size:0.5em;">Entra&icirc;nement 2D
-              (flow matching) : l'image satellite conditionne la
-              g&eacute;n&eacute;ration de la coupe verticale.</div>
-          </div>
-          <div>
-            <img src="csi_1/assets/pipeline.png"
-              style="width:100%;">
-            <div class="label" style="font-size:0.5em;">G&eacute;n&eacute;ration
-              3D : les coupes verticales sont &eacute;chantillonn&eacute;es
-              s&eacute;quentiellement, chacune conditionn&eacute;e par
-              l'image satellite et par les coupes d&eacute;j&agrave;
-              g&eacute;n&eacute;r&eacute;es, puis le volume est compl&eacute;t&eacute;
-              par TV-$\ell_1$.</div>
-          </div>
+        <h2>Notre approche : Mikado : entra&icirc;nement</h2>
+        <div style="text-align:center;margin-top:6px;">
+          <img src="csi_1/assets/fm_scheme.png"
+            style="width:66%;max-height:400px;object-fit:contain;">
+          <div class="label" style="font-size:0.55em;">Entra&icirc;nement 2D
+            (<em>flow matching</em>) : l'image satellite conditionne la
+            g&eacute;n&eacute;ration de la coupe verticale.</div>
         </div>
         <div class="highlight-box green fragment" style="margin-top:8px;">
-          On entraîne un modèle génératif 2D par <em>flow matching</em>, puis
-          on construit le volume 3D en générant séquentiellement des tranches 2D
-          qui remplissent le volume.
+          On entra&icirc;ne un mod&egrave;le g&eacute;n&eacute;ratif 2D par
+          <em>flow matching</em>, conditionn&eacute; par l'image satellite.
         </div>
       </section>
 
-      <!-- ============ SLIDE 13: Résultats préliminaires ============ -->
+      <!-- ============ SLIDE 14: Mikado - génération 3D ============ -->
+      <section>
+        <h2>Notre approche : Mikado </h2>
+        <div style="text-align:center;margin-top:6px;">
+          <img src="csi_1/assets/mikado_3d.gif" alt="g&eacute;n&eacute;ration
+            s&eacute;quentielle des tranches puis inpainting"
+            style="width:76%;max-height:412px;object-fit:contain;">
+        </div>
+        <div class="highlight-box green fragment" style="margin-top:8px;">
+          On construit le volume 3D en g&eacute;n&eacute;rant
+          <strong>s&eacute;quentiellement des tranches 2D</strong>,<br> puis on
+          finit de remplir le volume avec un <strong>inpainting
+            TV-$\ell_1$</strong>.
+        </div>
+      </section>
+
+      <!-- ============ SLIDE 15: Résultats préliminaires ============ -->
       <section>
         <h2>R&eacute;sultats pr&eacute;liminaires (mod&egrave;le
           g&eacute;n&eacute;ratif 2D)</h2>
@@ -1555,10 +1886,10 @@
               <td style="text-align:left;">FDL</td>
               <td class="best">49.3</td>
               <td>0.92</td>
-              <td>&mdash;</td>
-              <td>&mdash;</td>
-              <td>&mdash;</td>
-              <td>&mdash;</td>
+              <td>n/a</td>
+              <td>n/a</td>
+              <td>n/a</td>
+              <td>n/a</td>
             </tr>
             <tr>
               <td style="text-align:left;">ICN</td>
@@ -1571,39 +1902,38 @@
             </tr>
             <tr class="ours-row">
               <td style="text-align:left;"><strong>Nous</strong> (oracle)</td>
-              <td>90.0</td>
-              <td class="best">0.12</td>
-              <td>&mdash;</td>
-              <td>&mdash;</td>
-              <td>&mdash;</td>
-              <td>&mdash;</td>
+              <td>65.1</td>
+              <td class="best">0.10</td>
+              <td>n/a</td>
+              <td>n/a</td>
+              <td>n/a</td>
+              <td>n/a</td>
             </tr>
           </tbody>
         </table>
-        <div class="label" style="margin-top:2px;">&mdash; : exp&eacute;riences
-          en cours. <span style="color:var(--blue);font-weight:bold;">En bleu : meilleur score.</span></div>
+        <div class="label" style="margin-top:2px;">n/a : exp&eacute;riences
+          en cours. <span style="color:var(--blue);font-weight:bold;">En bleu :
+            meilleur score.</span><br>
+          <em>(oracle)</em> : on ne g&eacute;n&egrave;re pas tout le volume 3D,
+          seulement la coupe sur laquelle les m&eacute;triques sont
+          &eacute;valu&eacute;es.
+        </div>
 
-        <!-- Explications MAE / FID mises de cote pour l'instant
         <div class="two-col"
           style="margin-top:8px;gap:14px;align-items:stretch;">
           <div class="method-step-card fragment"
-            style="margin:0;padding:10px 14px;">
-            <h4 style="color:var(--blue);">MAE &mdash; pr&eacute;cision</h4>
+            style="margin:0;padding:8px 14px;">
+            <h4 style="color:var(--blue);">MAE : la pr&eacute;cision</h4>
             <p>Erreur moyenne point &agrave; point. Favorise
-              m&eacute;caniquement les pr&eacute;dictions
-              moyenn&eacute;es, donc floues.</p>
+              m&eacute;caniquement les pr&eacute;dictions floues.</p>
           </div>
           <div class="method-step-card fragment"
-            style="margin:0;padding:10px 14px;">
-            <h4 style="color:var(--purple);">FID (adapt&eacute;) &mdash;
-              r&eacute;alisme</h4>
-            <p>M&eacute;trique perceptuelle qui mesure le flou : un
-              mod&egrave;le d&eacute;di&eacute; a d&ucirc;
-              &ecirc;tre entra&icirc;n&eacute;, le FID classique n'&eacute;tant
-              pas adapt&eacute; &agrave; nos donn&eacute;es.</p>
+            style="margin:0;padding:8px 14px;">
+            <h4 style="color:var(--purple);">FID : le r&eacute;alisme</h4>
+            <p>Compare la distribution des pr&eacute;dictions &agrave; celle des
+              vraies coupes : p&eacute;nalise le flou.</p>
           </div>
         </div>
-        -->
 
         <div class="highlight-box green fragment"
           style="margin-top:8px;padding:8px 14px;">
@@ -1611,30 +1941,19 @@
             du r&eacute;alisme</strong>
           (FID divis&eacute; par ~6).
         </div>
-        <div class="method-step-card fragment"
-          style="margin-top:8px;padding:10px 14px;">
-          <h4 style="color:var(--teal);">Mesurer la variabilit&eacute; du
-            mod&egrave;le &mdash; m&eacute;triques envisag&eacute;es</h4>
-          <ul style="margin:4px 0 0 0.6em;">
-            <li style="font-size:0.62em;line-height:1.35;"><strong>CRPS</strong>
-              &mdash; <em>Continuous Ranked Probability Score</em></li>
-            <li style="font-size:0.62em;line-height:1.35;"><strong>SER</strong>
-              &mdash; <em>Spread-Error Ratio</em></li>
-            <li style="font-size:0.62em;line-height:1.35;"><strong>Ranking
-                histogram</strong> &mdash; <em>histogramme de rang
-                (Talagrand)</em></li>
-          </ul>
-        </div>
       </section>
 
-      <!-- ============ SLIDE 14: Résultats qualitatifs ============ -->
+      <!-- ============ SLIDE 16: Résultats qualitatifs ============ -->
       <section class="qual-slide">
         <h2>R&eacute;sultats qualitatifs</h2>
 
         <div class="qual-grid">
-          <div class="qhead">Entr&eacute;e &mdash; image satellite<br>
-            <span style="font-weight:400;">en <span style="color:#e53935;font-weight:700;">rouge</span> : la trace du radar/lidar (coupe verticale)</span></div>
-          <div class="qhead">V&eacute;rit&eacute;-terrain &mdash; coupe
+          <div class="qhead">Entr&eacute;e : image satellite<br>
+            <span style="font-weight:400;">en <span
+                style="color:#e53935;font-weight:700;">rouge</span> : la trace
+              du radar/lidar (coupe verticale)</span>
+          </div>
+          <div class="qhead">V&eacute;rit&eacute;-terrain : coupe
             verticale</div>
           <div class="qhead">Interpolation entre
             &eacute;chantillons g&eacute;n&eacute;r&eacute;s</div>
@@ -1644,9 +1963,11 @@
             <img src="csi_1/fm_samples/sample00137_topview_overpass.png"
               alt="entr&eacute;e satellite #137">
           </div>
-          <div class="qcell"><img src="csi_1/fm_samples/sample00137_iwc_target.png">
+          <div class="qcell"><img
+              src="csi_1/fm_samples/sample00137_iwc_target.png">
           </div>
-          <div class="qcell"><img src="csi_1/fm_samples/sample00137_iwc_interp.gif">
+          <div class="qcell"><img
+              src="csi_1/fm_samples/sample00137_iwc_interp.gif">
           </div>
 
           <!-- ligne 2 -->
@@ -1654,9 +1975,11 @@
             <img src="csi_1/fm_samples/sample00047_topview_overpass.png"
               alt="entr&eacute;e satellite #047">
           </div>
-          <div class="qcell"><img src="csi_1/fm_samples/sample00047_iwc_target.png">
+          <div class="qcell"><img
+              src="csi_1/fm_samples/sample00047_iwc_target.png">
           </div>
-          <div class="qcell"><img src="csi_1/fm_samples/sample00047_iwc_interp.gif">
+          <div class="qcell"><img
+              src="csi_1/fm_samples/sample00047_iwc_interp.gif">
           </div>
 
           <!-- ligne 3 -->
@@ -1664,24 +1987,20 @@
             <img src="csi_1/fm_samples/sample00085_topview_overpass.png"
               alt="entr&eacute;e satellite #085">
           </div>
-          <div class="qcell"><img src="csi_1/fm_samples/sample00085_iwc_target.png">
+          <div class="qcell"><img
+              src="csi_1/fm_samples/sample00085_iwc_target.png">
           </div>
-          <div class="qcell"><img src="csi_1/fm_samples/sample00085_iwc_interp.gif">
+          <div class="qcell"><img
+              src="csi_1/fm_samples/sample00085_iwc_interp.gif">
           </div>
         </div>
 
         <div class="cbar" style="width:24%;margin:4px auto 0 auto;">
           <img src="csi_1/fm_samples/colorbar_iwc.png" class="cbar-img">
         </div>
-
-        <div class="highlight-box green fragment" style="margin-top:6px;">
-          La troisi&egrave;me colonne est une <strong>interpolation</strong>
-          entre plusieurs nuages possibles g&eacute;n&eacute;r&eacute;s
-          &agrave; partir de la m&ecirc;me image satellite.
-        </div>
       </section>
 
-      <!-- ============ SLIDE 15: Prochaines étapes ============ -->
+      <!-- ============ SLIDE 17: Prochaines étapes ============ -->
       <section>
         <h2>Prochaines &eacute;tapes</h2>
         <ul style="margin-top:16px;line-height:1.9;">
@@ -1691,13 +2010,25 @@
             pour atteindre une MAE comparable aux approches d&eacute;terministes
           </li>
           <li class="fragment">Finaliser le <strong>benchmark</strong> et
-            mesurer l'<strong>incertitude</strong> du mod&egrave;le</li>
+            mesurer l'<strong>incertitude</strong> du mod&egrave;le
+            <ul style="margin:2px 0 4px 0.8em;line-height:1.4;">
+              <li style="font-size:0.72em;"><strong>CRPS</strong> :
+                <em>Continuous Ranked Probability Score</em>
+              </li>
+              <li style="font-size:0.72em;"><strong>SER</strong> :
+                <em>Spread-Error Ratio</em>
+              </li>
+              <li style="font-size:0.72em;"><strong>Ranking histogram</strong> :
+                <em>histogramme de rang (Talagrand)</em>
+              </li>
+            </ul>
+          </li>
           <li class="fragment">Faire fonctionner le passage <strong>2D &rarr;
               3D</strong></li>
         </ul>
       </section>
 
-      <!-- ============ SLIDE 16: Prochains projets + Gantt ============ -->
+      <!-- ============ SLIDE 18: Prochains projets + Gantt ============ -->
       <section>
         <h2>Prochains projets &amp; feuille de route</h2>
         <div
@@ -1709,8 +2040,8 @@
               G&eacute;n&eacute;ration en une &eacute;tape</h4>
             <p><em>One-step generation</em> (reflow, drifting models&#8230;) :
               une seule passe au lieu d'une longue
-              trajectoire de g&eacute;n&eacute;ration &mdash; et plus de
-              probl&egrave;me de supervision &eacute;parse.</p>
+              trajectoire de g&eacute;n&eacute;ration, et plus de
+              probl&egrave;me de supervision sparse.</p>
           </div>
           <div class="contrib-item"
             style="margin:0;border-top:3px solid var(--green);">
@@ -1728,9 +2059,9 @@
                 class="pipeline-step step-teal">P4</span> ML multimodal,
               donn&eacute;es h&eacute;t&eacute;rog&egrave;nes</h4>
             <p>V&eacute;rifier si <strong>ajouter de l'information</strong>
-              &mdash; s&eacute;ries temporelles MTG,
+              (s&eacute;ries temporelles MTG,
               donn&eacute;es spectrales MTG-S, autres sources
-              h&eacute;t&eacute;rog&egrave;nes &mdash;
+              h&eacute;t&eacute;rog&egrave;nes)
               <strong>r&eacute;duit l'incertitude</strong>.
             </p>
           </div>
@@ -1746,7 +2077,7 @@
             </div>
             <div style="position:relative;height:24px;margin-bottom:6px;">
               <div
-                style="position:absolute;left:22.22%;width:22.22%;top:0;height:24px;border-radius:4px;background:#fef0e0;border:1px solid var(--orange);display:flex;align-items:center;justify-content:center;font-size:0.52em;font-weight:700;color:var(--orange);white-space:nowrap;">
+                style="position:absolute;left:19.44%;width:25.00%;top:0;height:24px;border-radius:4px;background:#fef0e0;border:1px solid var(--orange);display:flex;align-items:center;justify-content:center;font-size:0.52em;font-weight:700;color:var(--orange);white-space:nowrap;">
                 P2</div>
             </div>
             <div style="position:relative;height:24px;margin-bottom:6px;">
@@ -1756,7 +2087,7 @@
             </div>
             <div style="position:relative;height:24px;margin-bottom:6px;">
               <div
-                style="position:absolute;left:69.44%;width:19.44%;top:0;height:24px;border-radius:4px;background:#e0f2f1;border:1px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:0.52em;font-weight:700;color:var(--teal);white-space:nowrap;">
+                style="position:absolute;left:66.67%;width:22.22%;top:0;height:24px;border-radius:4px;background:#e0f2f1;border:1px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:0.52em;font-weight:700;color:var(--teal);white-space:nowrap;">
                 P4</div>
             </div>
             <div style="position:relative;height:24px;margin-bottom:6px;">
@@ -1785,31 +2116,35 @@
             style="position:absolute;left:13.89%;top:-10px;bottom:16px;border-left:1.5px dashed #333;">
           </div>
           <div style="position:absolute;left:13.89%;top:-26px;transform:translateX(-50%);font-size:0.5em;
-            font-weight:700;color:#333;white-space:nowrap;">on est ici 
+            font-weight:700;color:#333;white-space:nowrap;">on est ici
           </div>
         </div>
       </section>
 
-      <!-- ============ SLIDE 17: Autres activités ============ -->
+      <!-- ============ SLIDE 19: Autres activités ============ -->
       <section>
         <h2>Autres activit&eacute;s durant la th&egrave;se</h2>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px;">
           <div class="contrib-item"
             style="margin:0;display:grid;grid-template-columns:0.85fr 1.15fr;gap:18px;align-items:center;">
             <div>
-              <h4>&Eacute;cole d'&eacute;t&eacute; C3SAR</h4>
+              <h4>&Eacute;cole d'&eacute;t&eacute; C3SAR <span
+                  style="color:var(--muted);font-weight:400;">(30&nbsp;h)</span>
+              </h4>
             </div>
             <img src="csi_1/assets/c3sar_group.jpg"
               style="width:100%;height:330px;object-fit:cover;border-radius:5px;box-shadow:0 1px 5px rgba(0,0,0,0.12);">
           </div>
           <div class="contrib-item" style="margin:0;">
-            <h4>Cours "Nuages et a&eacute;rosols"</h4>
+            <h4>Cours "Nuages et a&eacute;rosols" <span
+                style="color:var(--muted);font-weight:400;">(30&nbsp;h)</span>
+            </h4>
             <p>Master SOAC, Sorbonne.</p>
           </div>
         </div>
       </section>
 
-      <!-- ============ SLIDE 18: Plan après la thèse ============ -->
+      <!-- ============ SLIDE 20: Plan après la thèse ============ -->
       <section>
         <h2>Plan pour apr&egrave;s la th&egrave;se</h2>
         <p style="margin-bottom:6px;">Recherche acad&eacute;mique, ou quelque
@@ -1835,7 +2170,7 @@
         </div>
       </section>
 
-      <!-- ============ SLIDE 19: Merci ============ -->
+      <!-- ============ SLIDE 21: Merci ============ -->
       <section class="center-slide">
         <h1 style="font-size:2em;">Merci pour votre attention</h1>
         <p style="font-size:0.85em;color:#666;margin-top:0.4em;">Questions &amp;
@@ -1850,14 +2185,14 @@
   <script src="https://player.vimeo.com/api/player.js"></script>
   <script>
     const sectionMap = [
-      { slides: [0, 1, 2] },        // Intro
-      { slides: [3, 4] },           // Observation
-      { slides: [5, 6] },           // Thèse (objectif + équipe)
-      { slides: [7, 8, 9] },        // État de l'art
-      { slides: [10, 11] },         // Méthode
-      { slides: [12] },             // Résultats
-      { slides: [13, 14] },         // Roadmap
-      { slides: [15, 16, 17] },     // Contexte + merci
+      { slides: [0, 1, 2, 3] },     // Intro (+ à propos de moi)
+      { slides: [4, 5] },           // Observation
+      { slides: [6, 7] },           // Thèse (objectif + équipe)
+      { slides: [8, 9, 10] },       // État de l'art
+      { slides: [11, 12, 13] },     // Méthode (flow matching + Mikado x2)
+      { slides: [14, 15] },         // Résultats
+      { slides: [16, 17] },         // Roadmap
+      { slides: [18, 19, 20] },     // Contexte + merci
     ];
     function updateTimeline(idx) {
       const secs = document.querySelectorAll('.tl-section');
@@ -1868,16 +2203,17 @@
 
     /* --- slide flow matching : pilotage des étapes (entraînement / génération) --- */
     const DSTAGES = [
-      { head: 'head-base', note: 'note-base' },
-      { head: 'head-train', note: 'note-train-4', arrow: 'arr-train-4', tgt: 0, on: 4 },
-      { head: 'head-train', note: 'note-train-2', arrow: 'arr-train-2', tgt: 0, on: 2 },
-      { head: 'head-train', note: 'note-train-1', arrow: 'arr-train-1', tgt: 0, on: 1 },
-      { head: 'head-inf', note: 'note-inf-5', arrow: 'arr-inf-5', on: 5, nxt: 4 },
-      { head: 'head-inf', note: 'note-inf-4', arrow: 'arr-inf-4', on: 4, nxt: 3 },
-      { head: 'head-inf', note: 'note-inf-3', arrow: 'arr-inf-3', on: 3, nxt: 2 },
-      { head: 'head-inf', note: 'note-inf-2', arrow: 'arr-inf-2', on: 2, nxt: 1 },
-      { head: 'head-inf', note: 'note-inf-1', arrow: 'arr-inf-1', on: 1, nxt: 0 },
-      { head: 'head-base', note: 'note-base' },
+      { head: 'head-base', note: 'note-transport', arrow: 'arr-transport' },
+      { head: 'head-train', arrow: 'arr-train-2', tgt: 5, on: 2 },
+      { head: 'head-train', arrow: 'arr-train-1', tgt: 5, on: 1 },
+      { head: 'head-train', arrow: 'arr-train-4', tgt: 5, on: 4 },
+      { head: 'head-inf', note: 'note-inf', arrow: 'arr-inf-one', on: 0, nxt: 5 },
+      { head: 'head-inf', note: 'note-inf', tail: true, arrow: 'arr-inf-1', on: 0, nxt: 1 },
+      { head: 'head-inf', note: 'note-inf', tail: true, arrow: 'arr-inf-2', on: 1, nxt: 2 },
+      { head: 'head-inf', note: 'note-inf', tail: true, arrow: 'arr-inf-3', on: 2, nxt: 3 },
+      { head: 'head-inf', note: 'note-inf', tail: true, arrow: 'arr-inf-4', on: 3, nxt: 4 },
+      { head: 'head-inf', note: 'note-inf', tail: true, arrow: 'arr-inf-5', on: 4, nxt: 5 },
+      { head: 'head-base' },
     ];
     const dwrap = document.querySelector('#slide-flow .dwrap');
     function setDStage(k) {
@@ -1886,6 +2222,10 @@
       const st = DSTAGES[k];
       dwrap.dataset.stage = k;
       dwrap.querySelectorAll('.dnote, .darr').forEach(el => el.classList.remove('show'));
+      const _tail = dwrap.querySelector('#note-inf-tail');
+      const _dot = dwrap.querySelector('#note-inf-dot');
+      if (_tail) _tail.classList.toggle('show', !!st.tail);
+      if (_dot) _dot.classList.toggle('show', !st.tail);
       ['head', 'note', 'arrow'].forEach(key => {
         if (!st[key]) return;
         const el = dwrap.querySelector('#' + st[key]);
