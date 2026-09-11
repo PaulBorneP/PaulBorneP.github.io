@@ -958,7 +958,7 @@
 
       <!-- ============ SLIDE 1: Titre ============ -->
       <section class="center-slide title-slide">
-        <h1>Génération de nuages 3D<br>à partir de sources hétérogènes</h1>
+        <h2>Reconstruction 3D de nuages par apprentissage automatique mulitmodal</h2>
         <div class="subtitle">Premier Comité de Suivi Individuel (CSI)</div>
         <div class="authors"><strong>Paul Borne&#8211;Pons</strong></div>
         <div class="affiliation">ENPC / LIGM &amp; LOA</div>
@@ -986,21 +986,21 @@
           <div>
             <div class="fragment" data-fragment-index="1">
               <h3 style="color:var(--blue);margin-bottom:6px;">Formation</h3>
-            <div class="about-row">
-              <img src="csi_1/assets/logo-ens-paris-saclay.jpg"
-                alt="ENS Paris-Saclay">
-              <div>ENS Paris-Saclay : <strong>Master MVA</strong>
-                <span class="about-date">2023&ndash;2024</span>
+              <div class="about-row">
+                <img src="csi_1/assets/logo-ens-paris-saclay.jpg"
+                  alt="ENS Paris-Saclay">
+                <div>ENS Paris-Saclay : <strong>Master MVA</strong>
+                  <span class="about-date">2023&ndash;2024</span>
+                </div>
               </div>
-            </div>
-            <div class="about-row">
-              <img src="csi_1/assets/logo-centralesupelec.png"
-                alt="CentraleSup&eacute;lec">
-              <div>CentraleSup&eacute;lec : <strong>mention Data
-                  Science</strong>
-                <span class="about-date">2020&ndash;2024</span>
+              <div class="about-row">
+                <img src="csi_1/assets/logo-centralesupelec.png"
+                  alt="CentraleSup&eacute;lec">
+                <div>CentraleSup&eacute;lec : <strong>mention Data
+                    Science</strong>
+                  <span class="about-date">2020&ndash;2024</span>
+                </div>
               </div>
-            </div>
             </div>
             <div class="fragment" data-fragment-index="3">
               <h3 style="color:var(--blue);margin:16px 0 6px 0;">
@@ -1077,7 +1077,7 @@
       <section>
         <h2>Les nuages : un syst&egrave;me complexe</h2>
         <div
-          style="display:grid;grid-template-columns:0.95fr 1.05fr;gap:24px;align-items:center;flex:0 0 auto;">
+          style="display:grid;grid-template-columns:0.95fr 1.05fr;gap:24px;align-items:start;flex:0 0 auto;">
           <div>
             <div class="highlight-box" style="margin:0;font-size:0.8em;">
               &laquo;Ensemble visible de petites gouttes d'eau
@@ -1092,8 +1092,8 @@
             <div class="fragment">
               <p
                 style="font-size:0.72em;color:#444;margin:10px 0 4px 0;line-height:1.45;">
-                Ils ont un impact majeur sur le climat</strong>,
-                mais sont r&eacute;gis par des processus physiques :
+                Les nuages sont r&eacute;gis par des processus
+                physiques :
               </p>
               <ul
                 style="font-size:0.72em;color:#444;line-height:1.45;margin:0 0 0 0.4em;">
@@ -1171,12 +1171,7 @@
             l'incertitude des mod&egrave;les</div>
         </div>
         <div class="highlight-box orange fragment" style="margin-top:12px;">
-          Cette complexit&eacute; rend les nuages <strong>difficiles &agrave;
-            repr&eacute;senter</strong>
-          dans les mod&egrave;les de climat et restent aujourd'hui la
-          <strong>principale source
-            d'incertitude</strong>
-          des projections climatiques.
+          Les nuages ont un <strong> impact climatique majeur</strong> mais on ne sait pas comment ils réagiront à un climat plus chaud.
         </div>
       </section>
 
@@ -1243,14 +1238,16 @@
             <div class="label" style="margin-top:1px;"><strong>onde
                 radio</strong> : sensible aux <strong>grosses
                 particules</strong> (gouttes, glace) <br> &rarr; traverse
-              <strong>toute l'&eacute;paisseur</strong> du nuage</div>
+              <strong>toute l'&eacute;paisseur</strong> du nuage
+            </div>
           </div>
         </div>
 
         <p style="margin:14px 0 4px 0;">On observe les nuages :</p>
         <ul style="margin:0 0 0 0.6em;line-height:1.6;">
           <li class="fragment">en <strong>2D vu d'en haut</strong>
-            <span style="color:#888;">(imageurs passifs)</span></li>
+            <span style="color:#888;">(imageurs passifs)</span>
+          </li>
           <li class="fragment">en <strong>2D vertical</strong>, sous le passage
             des satellites <span style="color:#888;">(radar, lidar)</span></li>
           <li class="fragment" style="color:var(--red);"><strong>on ne les
@@ -1488,7 +1485,8 @@
           <div>Le mod&egrave;le apprend &agrave; <strong>transporter une
               distribution arbitraire</strong> (une gaussienne) vers une
             <strong>distribution cible</strong>, ici celle des profils
-            verticaux 2D de nuages.</div>
+            verticaux 2D de nuages.
+          </div>
         </div>
 
         <span class="dstep fragment" data-fragment-index="0"></span>
@@ -1551,15 +1549,16 @@
           <div class="darrows">
             <svg class="darr" id="arr-transport" viewBox="0 0 600 24">
               <defs>
-                <marker id="m-arr-transport" viewBox="0 0 10 10" refX="9" refY="5"
-                  markerWidth="5" markerHeight="5" orient="auto">
+                <marker id="m-arr-transport" viewBox="0 0 10 10" refX="9"
+                  refY="5" markerWidth="5" markerHeight="5" orient="auto">
                   <path d="M0,0 L10,5 L0,10 z" fill="#5a6b7f" />
                 </marker>
               </defs>
               <path d="M215,9 L385,9" fill="none" stroke="#5a6b7f"
                 stroke-width="1.1" marker-end="url(#m-arr-transport)" />
               <text x="300" y="5" text-anchor="middle" font-size="7"
-                fill="#5a6b7f" font-family="Crimson Pro, serif">transport appris</text>
+                fill="#5a6b7f" font-family="Crimson Pro, serif">transport
+                appris</text>
             </svg>
             <svg class="darr" id="arr-train-1" viewBox="0 0 600 24">
               <defs>
@@ -1606,8 +1605,9 @@
               <text x="300" y="5" text-anchor="middle" font-size="7"
                 fill="#4472C4" font-family="Crimson Pro, serif"
                 font-style="italic">v<tspan baseline-shift="sub"
-                  font-size="4.5">&#952;</tspan><tspan
-                  font-style="normal">&#8201;&#215;&#8201;1</tspan></text>
+                  font-size="4.5">&#952;</tspan>
+                <tspan font-style="normal">&#8201;&#215;&#8201;1</tspan>
+              </text>
             </svg>
             <svg class="darr" id="arr-inf-1" viewBox="0 0 600 24">
               <defs>
@@ -1621,8 +1621,9 @@
               <text x="100" y="5" text-anchor="middle" font-size="7"
                 fill="#4472C4" font-family="Crimson Pro, serif"
                 font-style="italic">v<tspan baseline-shift="sub"
-                  font-size="4.5">&#952;</tspan><tspan
-                  font-style="normal">&#8201;&#215;&#8201;0,2</tspan></text>
+                  font-size="4.5">&#952;</tspan>
+                <tspan font-style="normal">&#8201;&#215;&#8201;0,2</tspan>
+              </text>
             </svg>
             <svg class="darr" id="arr-inf-2" viewBox="0 0 600 24">
               <defs>
@@ -1636,8 +1637,9 @@
               <text x="200" y="5" text-anchor="middle" font-size="7"
                 fill="#4472C4" font-family="Crimson Pro, serif"
                 font-style="italic">v<tspan baseline-shift="sub"
-                  font-size="4.5">&#952;</tspan><tspan
-                  font-style="normal">&#8201;&#215;&#8201;0,2</tspan></text>
+                  font-size="4.5">&#952;</tspan>
+                <tspan font-style="normal">&#8201;&#215;&#8201;0,2</tspan>
+              </text>
             </svg>
             <svg class="darr" id="arr-inf-3" viewBox="0 0 600 24">
               <defs>
@@ -1651,8 +1653,9 @@
               <text x="300" y="5" text-anchor="middle" font-size="7"
                 fill="#4472C4" font-family="Crimson Pro, serif"
                 font-style="italic">v<tspan baseline-shift="sub"
-                  font-size="4.5">&#952;</tspan><tspan
-                  font-style="normal">&#8201;&#215;&#8201;0,2</tspan></text>
+                  font-size="4.5">&#952;</tspan>
+                <tspan font-style="normal">&#8201;&#215;&#8201;0,2</tspan>
+              </text>
             </svg>
             <svg class="darr" id="arr-inf-4" viewBox="0 0 600 24">
               <defs>
@@ -1666,8 +1669,9 @@
               <text x="400" y="5" text-anchor="middle" font-size="7"
                 fill="#4472C4" font-family="Crimson Pro, serif"
                 font-style="italic">v<tspan baseline-shift="sub"
-                  font-size="4.5">&#952;</tspan><tspan
-                  font-style="normal">&#8201;&#215;&#8201;0,2</tspan></text>
+                  font-size="4.5">&#952;</tspan>
+                <tspan font-style="normal">&#8201;&#215;&#8201;0,2</tspan>
+              </text>
             </svg>
             <svg class="darr" id="arr-inf-5" viewBox="0 0 600 24">
               <defs>
@@ -1681,8 +1685,9 @@
               <text x="500" y="5" text-anchor="middle" font-size="7"
                 fill="#4472C4" font-family="Crimson Pro, serif"
                 font-style="italic">v<tspan baseline-shift="sub"
-                  font-size="4.5">&#952;</tspan><tspan
-                  font-style="normal">&#8201;&#215;&#8201;0,2</tspan></text>
+                  font-size="4.5">&#952;</tspan>
+                <tspan font-style="normal">&#8201;&#215;&#8201;0,2</tspan>
+              </text>
             </svg>
           </div>
 
@@ -1717,7 +1722,8 @@
                   xmlns="http://www.w3.org/2000/svg">
                   <defs>
                     <clipPath id="box1">
-                      <polygon points="14,50 66,24 126,42 126,82 74,108 14,90" />
+                      <polygon
+                        points="14,50 66,24 126,42 126,82 74,108 14,90" />
                     </clipPath>
                   </defs>
                   <image href="csi_1/assets/vol_noise.png" x="8" y="20"
@@ -1741,7 +1747,8 @@
                   xmlns="http://www.w3.org/2000/svg">
                   <defs>
                     <clipPath id="box2">
-                      <polygon points="14,50 66,24 126,42 126,82 74,108 14,90" />
+                      <polygon
+                        points="14,50 66,24 126,42 126,82 74,108 14,90" />
                     </clipPath>
                     <clipPath id="cut2">
                       <polygon points="30,42 110,50 110,90 30,82" />
@@ -1767,8 +1774,8 @@
                     <path d="M14,50 L14,90 M126,42 L126,82 M74,68 L74,108" />
                     <path d="M14,90 L74,108 L126,82" />
                   </g>
-                  <g class="fragment" data-fragment-index="10"
-                    stroke="#C0392B" stroke-width="6" stroke-linecap="round">
+                  <g class="fragment" data-fragment-index="10" stroke="#C0392B"
+                    stroke-width="6" stroke-linecap="round">
                     <path d="M32,32 L108,100" />
                     <path d="M108,32 L32,100" />
                   </g>
@@ -1780,7 +1787,8 @@
                   xmlns="http://www.w3.org/2000/svg">
                   <defs>
                     <clipPath id="box3">
-                      <polygon points="14,50 66,24 126,42 126,82 74,108 14,90" />
+                      <polygon
+                        points="14,50 66,24 126,42 126,82 74,108 14,90" />
                     </clipPath>
                     <clipPath id="cut3">
                       <polygon points="30,42 110,50 110,90 30,82" />
@@ -1828,8 +1836,18 @@
             g&eacute;n&eacute;ration de la coupe verticale.</div>
         </div>
         <div class="highlight-box green fragment" style="margin-top:8px;">
-          On entra&icirc;ne un mod&egrave;le g&eacute;n&eacute;ratif 2D par
-          <em>flow matching</em>, conditionn&eacute; par l'image satellite.
+          Le modèle est composé de deux sous-modèles :
+          <ul>
+            <li style="font-size:1em;">
+              un <strong style="color:var(--teal);">encodeur dense</strong> qui
+              construit une représentation latente de l'image passive,
+            </li>
+            <li style="font-size:1em;">
+              un <strong style="color:var(--red);">modèle de flow matching</strong>
+              qui, conditionné par cette représentation le long de la trace
+              radar, débruite le profil vertical correspondant.
+            </li>
+          </ul>
         </div>
       </section>
 
@@ -1842,10 +1860,17 @@
             style="width:76%;max-height:412px;object-fit:contain;">
         </div>
         <div class="highlight-box green fragment" style="margin-top:8px;">
-          On construit le volume 3D en g&eacute;n&eacute;rant
-          <strong>s&eacute;quentiellement des tranches 2D</strong>,<br> puis on
-          finit de remplir le volume avec un <strong>inpainting
-            TV-$\ell_1$</strong>.
+          <ul>
+            <li style="font-size:1em;">On construit le volume 3D en g&eacute;n&eacute;rant
+              <strong>s&eacute;quentiellement des tranches 2D</strong>
+            </li>
+
+            <li style="font-size:1em;"> Puis on
+              finit de remplir le volume avec un <strong>inpainting
+                TV-$\ell_1$</strong>.
+            </li>
+          </ul>
+
         </div>
       </section>
 
@@ -2182,6 +2207,56 @@
         <h1 style="font-size:2em;">Merci pour votre attention</h1>
         <p style="font-size:0.85em;color:#666;margin-top:0.4em;">Questions &amp;
           discussion</p>
+      </section>
+
+      <!-- ============ SLIDE 22: Sources ============ -->
+      <section>
+        <h2>Sources</h2>
+        <div class="two-col" style="gap:36px;margin-top:8px;">
+          <div>
+            <div
+              style="font-size:0.6em;font-weight:700;color:#2c3e50;margin-bottom:6px;">
+              Travaux cit&eacute;s</div>
+            <ul
+              style="font-size:0.46em;color:#444;line-height:1.7;margin:0 0 0 0.6em;">
+              <li>Girtsou <em>et al.</em>, 2025 &mdash; <em>3D Cloud
+                  reconstruction through geospatially-aware Masked
+                  Autoencoders</em>
+              </li>
+              <li>Jeggle <em>et al.</em>, 2025 &mdash; <em>IceCloudNet: 3D
+                  reconstruction of cloud ice from Meteosat SEVIRI</em>
+              </li>
+              <li>Lipman <em>et al.</em>, 2023 &mdash; <em>Flow Matching for
+                  Generative Modeling</em>
+              </li>
+              <li>American Meteorological Society &mdash; <em>Glossary of
+                  Meteorology</em>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <div
+              style="font-size:0.6em;font-weight:700;color:#2c3e50;margin-bottom:6px;">
+              Cr&eacute;dits images &amp; vid&eacute;os</div>
+            <ul
+              style="font-size:0.46em;color:#444;line-height:1.7;margin:0 0 0 0.6em;">
+              <li>Projections de temp&eacute;rature : Copernicus Climate
+                Change Service (C3S) / ECMWF</li>
+              <li>Vid&eacute;os satellite g&eacute;ostationnaire / polaire :
+                EUMETSAT</li>
+              <li>Animations ATLID &amp; CPR : ESA (mission EarthCARE)</li>
+              <li>Cumulonimbus / enclume (10&nbsp;km) : Antonio J. Galindo
+              </li>
+              <li>Cristaux de glace : Kenneth G. Libbrecht</li>
+              <li>Cyclone Idai (500&nbsp;km) : NASA</li>
+              <li>&laquo;&nbsp;Clouds of Haleakala&nbsp;&raquo; : Gary Yost
+              </li>
+              <li>Cumulus (100&nbsp;m), rendus 3D, sch&eacute;mas et
+                r&eacute;sultats du mod&egrave;le : production personnelle
+              </li>
+            </ul>
+          </div>
+        </div>
       </section>
 
     </div>

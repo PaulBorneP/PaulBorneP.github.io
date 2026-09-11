@@ -5,3 +5,5 @@ csi_1/*.blend
 csi_1/*.npz
 csi_1/*.nc
 csi_1/*.vdb
+
+*.DS_Store
