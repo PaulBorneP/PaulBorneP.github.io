@@ -10,32 +10,32 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap">
 <style>
 :root {
-  --ink: #e9eef5;
-  --dim: rgba(233, 238, 245, 0.62);
-  --glass: rgba(16, 22, 31, 0.58);
-  --glass-line: rgba(255, 255, 255, 0.09);
-  --accent: #f09228;
+  --ink: #1c2430;
+  --dim: #5f6b7a;
+  --glass: rgba(255, 255, 255, 0.82);
+  --glass-line: #d6dce4;
+  --accent: #1772d0;
 }
 * { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; background: #0b1017; }
+html, body { height: 100%; margin: 0; background: #eef1f5; }
 body {
   font-family: "Lato", system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink);
   overflow: hidden; -webkit-font-smoothing: antialiased;
 }
 #stage {
   position: fixed; inset: 0; touch-action: none; cursor: grab;
-  background: radial-gradient(120% 90% at 50% 0%, #26364b 0%, #121a25 55%, #080b10 100%);
+  background: linear-gradient(180deg, #f6f8fb 0%, #e3e8ef 100%);
 }
 #stage:active { cursor: grabbing; }
 canvas { display: block; width: 100%; height: 100%; }
 .glass {
-  background: var(--glass); border: 1px solid var(--glass-line); border-radius: 14px;
-  -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  background: var(--glass); border: 1px solid var(--glass-line); border-radius: 3px;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  box-shadow: 0 1px 3px rgba(20, 30, 45, 0.08);
 }
 .icon {
   width: 40px; height: 40px; display: grid; place-items: center; color: var(--ink); cursor: pointer;
-  border-radius: 50%; padding: 0; text-decoration: none; transition: color .15s;
+  padding: 0; text-decoration: none; transition: color .15s;
 }
 .icon:hover { color: var(--accent); }
 .icon svg { width: 18px; height: 18px; }
@@ -60,35 +60,35 @@ input[type=range] { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: v
 .chip { position: relative; }
 .chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
 .chip span, .seg button {
-  display: inline-block; font: inherit; font-size: 12px; color: var(--dim); padding: 5px 10px; border-radius: 999px;
-  border: 1px solid var(--glass-line); background: rgba(255, 255, 255, 0.03); cursor: pointer; transition: .15s;
+  display: inline-block; font: inherit; font-size: 12px; color: var(--dim); padding: 4px 9px; border-radius: 2px;
+  border: 1px solid var(--glass-line); background: #fff; cursor: pointer; transition: .15s;
 }
-.chip input:checked + span { color: #111; background: var(--ink); border-color: var(--ink); }
+.chip input:checked + span { color: #fff; background: var(--accent); border-color: var(--accent); }
 .chip input:focus-visible + span, .seg button:focus-visible, .thumb:focus-visible, .icon:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .seg { display: flex; gap: 6px; }
 .seg button:hover, .chip span:hover { color: var(--ink); }
 #dock {
   position: fixed; left: 50%; transform: translateX(-50%); bottom: max(18px, env(safe-area-inset-bottom));
-  display: flex; gap: 8px; padding: 8px; max-width: calc(100vw - 32px); overflow-x: auto;
+  display: flex; gap: 6px; padding: 6px; max-width: calc(100vw - 32px); overflow-x: auto; scrollbar-width: thin;
 }
 .thumb {
-  flex: 0 0 auto; width: 54px; height: 54px; padding: 0; border-radius: 9px; overflow: hidden; cursor: pointer;
-  border: 2px solid transparent; background: #000; opacity: 0.6; transition: opacity .15s, border-color .15s, transform .15s;
+  flex: 0 0 auto; width: 48px; height: 48px; padding: 0; border-radius: 2px; overflow: hidden; cursor: pointer;
+  border: 2px solid transparent; background: #ccc; opacity: 0.7; transition: opacity .15s, border-color .15s, transform .15s;
 }
 .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .thumb:hover { opacity: 0.9; transform: translateY(-2px); }
-.thumb.on { opacity: 1; border-color: var(--ink); }
+.thumb.on { opacity: 1; border-color: var(--accent); }
 #status { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; font-size: 13px; color: var(--dim); }
 #status:empty::before {
   content: ""; width: 28px; height: 28px; border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.15); border-top-color: var(--ink); animation: spin .9s linear infinite;
+  border: 2px solid rgba(28, 36, 48, 0.15); border-top-color: var(--accent); animation: spin .9s linear infinite;
 }
 #status[hidden] { display: none; }
-#status.err { color: #ffb4a8; padding: 0 24px; text-align: center; }
+#status.err { color: #b3261e; padding: 0 24px; text-align: center; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 600px) {
   #panel { left: max(16px, env(safe-area-inset-left)); width: auto; max-height: calc(100vh - 200px); }
-  .thumb { width: 46px; height: 46px; }
+  .thumb { width: 42px; height: 42px; }
   #date { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
@@ -399,7 +399,7 @@ window.addEventListener("unhandledrejection", (e) => { const s = document.getEle
       gl.useProgram(lines);
       gl.bindVertexArray(lineVao);
       gl.uniformMatrix4fv(UL.mvp, false, mvp); gl.uniform1f(UL.h, h);
-      const m = ["230", "236", "245", "0.55"];
+      const m = ["28", "36", "48", "0.6"];
       gl.uniform4f(UL.color, m[0] / 255, m[1] / 255, m[2] / 255, parseFloat(m[3] ?? 1));
       gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       gl.drawArrays(gl.LINES, 0, 24);
