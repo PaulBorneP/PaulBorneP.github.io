@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3D clouds</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><text x='0' y='32' font-size='32'>☁️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap">
+<style>
+:root {
+  --ink: #e9eef5;
+  --dim: rgba(233, 238, 245, 0.62);
+  --glass: rgba(16, 22, 31, 0.58);
+  --glass-line: rgba(255, 255, 255, 0.09);
+  --accent: #f09228;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; background: #0b1017; }
+body {
+  font-family: "Lato", system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink);
+  overflow: hidden; -webkit-font-smoothing: antialiased;
+}
+#stage {
+  position: fixed; inset: 0; touch-action: none; cursor: grab;
+  background: radial-gradient(120% 90% at 50% 0%, #26364b 0%, #121a25 55%, #080b10 100%);
+}
+#stage:active { cursor: grabbing; }
+canvas { display: block; width: 100%; height: 100%; }
+.glass {
+  background: var(--glass); border: 1px solid var(--glass-line); border-radius: 14px;
+  -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.icon {
+  width: 40px; height: 40px; display: grid; place-items: center; color: var(--ink); cursor: pointer;
+  border-radius: 50%; padding: 0; text-decoration: none; transition: color .15s;
+}
+.icon:hover { color: var(--accent); }
+.icon svg { width: 18px; height: 18px; }
+#home { position: fixed; top: max(16px, env(safe-area-inset-top)); left: max(16px, env(safe-area-inset-left)); }
+#gear { position: fixed; top: max(16px, env(safe-area-inset-top)); right: max(16px, env(safe-area-inset-right)); }
+#date {
+  position: fixed; top: max(28px, calc(env(safe-area-inset-top) + 12px)); left: 50%; transform: translateX(-50%);
+  font-size: 13px; letter-spacing: 0.06em; color: var(--dim); font-variant-numeric: tabular-nums;
+  pointer-events: none; white-space: nowrap;
+}
+#panel {
+  position: fixed; top: calc(max(16px, env(safe-area-inset-top)) + 52px); right: max(16px, env(safe-area-inset-right));
+  width: 248px; max-height: calc(100vh - 190px); overflow: auto; padding: 14px 16px 16px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+#panel[hidden] { display: none; }
+.ctl { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; align-items: baseline; font-size: 12.5px; }
+.ctl output { color: var(--dim); font-variant-numeric: tabular-nums; font-size: 12px; }
+input[type=range] { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: var(--accent); height: 18px; }
+.sep { height: 1px; background: var(--glass-line); margin: 2px 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { position: relative; }
+.chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.chip span, .seg button {
+  display: inline-block; font: inherit; font-size: 12px; color: var(--dim); padding: 5px 10px; border-radius: 999px;
+  border: 1px solid var(--glass-line); background: rgba(255, 255, 255, 0.03); cursor: pointer; transition: .15s;
+}
+.chip input:checked + span { color: #111; background: var(--ink); border-color: var(--ink); }
+.chip input:focus-visible + span, .seg button:focus-visible, .thumb:focus-visible, .icon:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.seg { display: flex; gap: 6px; }
+.seg button:hover, .chip span:hover { color: var(--ink); }
+#dock {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: max(18px, env(safe-area-inset-bottom));
+  display: flex; gap: 8px; padding: 8px; max-width: calc(100vw - 32px); overflow-x: auto;
+}
+.thumb {
+  flex: 0 0 auto; width: 54px; height: 54px; padding: 0; border-radius: 9px; overflow: hidden; cursor: pointer;
+  border: 2px solid transparent; background: #000; opacity: 0.6; transition: opacity .15s, border-color .15s, transform .15s;
+}
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb:hover { opacity: 0.9; transform: translateY(-2px); }
+.thumb.on { opacity: 1; border-color: var(--ink); }
+#status { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; font-size: 13px; color: var(--dim); }
+#status:empty::before {
+  content: ""; width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.15); border-top-color: var(--ink); animation: spin .9s linear infinite;
+}
+#status[hidden] { display: none; }
+#status.err { color: #ffb4a8; padding: 0 24px; text-align: center; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 600px) {
+  #panel { left: max(16px, env(safe-area-inset-left)); width: auto; max-height: calc(100vh - 200px); }
+  .thumb { width: 46px; height: 46px; }
+  #date { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="gl"></canvas></div>
+<div id="status"></div>
+
+<a id="home" class="icon glass" href="../" aria-label="Home">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+</a>
+<div id="date"></div>
+<button id="gear" class="icon glass" type="button" aria-label="Display settings" aria-expanded="false" aria-controls="panel">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+</button>
+
+<div id="panel" class="glass" hidden>
+  <div class="ctl"><label for="sigma">Density</label><output id="sigmaO"></output>
+    <input id="sigma" type="range" min="5" max="150" step="1" value="32"></div>
+  <div class="ctl"><label for="gamma">Contrast</label><output id="gammaO"></output>
+    <input id="gamma" type="range" min="1" max="4" step="0.05" value="2.2"></div>
+  <div class="ctl"><label for="cut">Threshold</label><output id="cutO"></output>
+    <input id="cut" type="range" min="-4" max="-1" step="0.05" value="-4"></div>
+  <div class="ctl"><label for="exag">Height</label><output id="exagO"></output>
+    <input id="exag" type="range" min="2" max="30" step="0.25" value="6"></div>
+  <div class="sep"></div>
+  <div class="ctl"><label for="az">Sun azimuth</label><output id="azO"></output>
+    <input id="az" type="range" min="0" max="360" step="1" value="315"></div>
+  <div class="ctl"><label for="el">Sun elevation</label><output id="elO"></output>
+    <input id="el" type="range" min="8" max="85" step="1" value="25"></div>
+  <div class="sep"></div>
+  <div class="chips">
+    <label class="chip"><input id="showCloud" type="checkbox" checked><span>Clouds</span></label>
+    <label class="chip"><input id="showFloor" type="checkbox" checked><span>Ground</span></label>
+    <label class="chip"><input id="floorShadow" type="checkbox"><span>Shadows</span></label>
+    <label class="chip"><input id="showEdges" type="checkbox"><span>Box</span></label>
+  </div>
+  <div class="seg">
+    <button type="button" data-view="teaser">3D</button>
+    <button type="button" data-view="top">Top</button>
+    <button type="button" data-view="side">Side</button>
+  </div>
+</div>
+
+<nav id="dock" class="glass" aria-label="Scenes"><div id="strip" style="display:contents"></div></nav>
+
+<script>
+window.addEventListener("error", (e) => { const s = document.getElementById("status"); if (s) { s.hidden = false; s.classList.add("err"); s.textContent = "Error: " + e.message; } });
+window.addEventListener("unhandledrejection", (e) => { const s = document.getElementById("status"); if (s) { s.hidden = false; s.classList.add("err"); s.textContent = "Error: " + (e.reason && e.reason.message || e.reason); } });
+(async function () {
+  const status0 = document.getElementById("status");
+  let SCENES;
+  try { SCENES = await (await fetch("scenes.json")).json(); }
+  catch (e) { status0.classList.add("err"); status0.textContent = `Could not load the scenes (${e.message})`; return; }
+  const L = 80, H = 256, W = 256, COLS = 10, SIDE_CM = 2.35;
+  const KM_PER_UNIT_H = 768, COLUMN_KM = 19.2;
+  const AMB = [0.45, 0.52, 0.68], LOW = [228 / 255, 232 / 255, 240 / 255];
+  const $ = (id) => document.getElementById(id);
+  const status = $("status");
+
+  const canvas = $("gl");
+  const gl = canvas.getContext("webgl2", { premultipliedAlpha: true, antialias: true });
+  if (!gl) { status.classList.add("err"); status.textContent = "This viewer needs WebGL 2."; return; }
+
+  // ---- textures
+  function tex3D() {
+    const t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_3D, t);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texImage3D(gl.TEXTURE_3D, 0, gl.R8, W, H, L, 0, gl.RED, gl.UNSIGNED_BYTE, null);
+    for (const p of [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER]) gl.texParameteri(gl.TEXTURE_3D, p, gl.LINEAR);
+    for (const p of [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T, gl.TEXTURE_WRAP_R]) gl.texParameteri(gl.TEXTURE_3D, p, gl.CLAMP_TO_EDGE);
+    return t;
+  }
+  const volTex = tex3D(), lightTex = tex3D();
+  const floorTex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, floorTex);
+  for (const [p, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]])
+    gl.texParameteri(gl.TEXTURE_2D, p, v);
+  const g8 = new Uint8Array(L * H * W), gF = new Float32Array(L * H * W), light8 = new Uint8Array(L * H * W);
+
+  // fetch + createImageBitmap: no <img> decode path, no colour management on the grey atlas
+  const loadImg = async (src) => {
+    const r = await fetch(src);
+    if (!r.ok) throw new Error(`${src}: HTTP ${r.status}`);
+    const blob = await r.blob();
+    try { return await createImageBitmap(blob, { premultiplyAlpha: "none", colorSpaceConversion: "none" }); }
+    catch (e) { throw new Error(`${src}: cannot decode (${e.message})`); }
+  };
+  const cache = new Map();
+  async function fetchScene(row) {
+    if (cache.has(row)) return cache.get(row);
+    const p = Promise.all([loadImg(`s${row}/vol_atlas.png`), loadImg(`s${row}/topview.png`)]).then(([atlas, top]) => {
+      const c = document.createElement("canvas"); c.width = atlas.width; c.height = atlas.height;
+      const ctx = c.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(atlas, 0, 0);
+      const px = ctx.getImageData(0, 0, c.width, c.height).data;
+      const vol = new Uint8Array(L * H * W);
+      for (let lv = 0; lv < L; lv++) {
+        const r0 = Math.floor(lv / COLS) * H, c0 = (lv % COLS) * W;
+        for (let y = 0; y < H; y++) {
+          const src = ((r0 + y) * c.width + c0) * 4, dst = (lv * H + y) * W;
+          for (let x = 0; x < W; x++) vol[dst + x] = px[src + 4 * x];
+        }
+      }
+      return { vol, top };
+    });
+    cache.set(row, p);
+    p.catch(() => cache.delete(row));
+    return p;
+  }
+
+  // ---- shaders
+  function program(vs, fs) {
+    const mk = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+    const p = gl.createProgram();
+    gl.attachShader(p, mk(gl.VERTEX_SHADER, vs)); gl.attachShader(p, mk(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    return p;
+  }
+  const VS_QUAD = `#version 300 es
+  in vec2 aPos; out vec2 vNdc;
+  void main(){ vNdc = aPos; gl_Position = vec4(aPos, 0.0, 1.0); }`;
+  // render_volume's shading: per-sample opacity 1 - exp(-sigma dt g^gamma), colour from the
+  // near-white ramp lit by the sun transmittance with a bluish ambient floor
+  const FS_MARCH = `#version 300 es
+  precision highp float; precision highp sampler3D;
+  in vec2 vNdc; out vec4 outColor;
+  uniform sampler3D uVol, uLight; uniform sampler2D uFloor;
+  uniform vec3 uCam, uRight, uUp, uFwd; uniform float uTanH, uAspect;
+  uniform float uH, uSigW, uGamma, uCut, uDt;
+  uniform vec3 uAmb, uLow;
+  uniform bool uShowCloud, uShowFloor, uFloorShadow;
+  vec3 coord(vec3 p){ return vec3(p.x, p.z, 1.0 - p.y / uH); }
+  void main(){
+    vec3 ro = uCam;
+    vec3 rd = normalize(uFwd + vNdc.x * uTanH * uAspect * uRight + vNdc.y * uTanH * uUp);
+    vec3 inv = 1.0 / rd;
+    vec3 t0 = (vec3(0.0) - ro) * inv, t1 = (vec3(1.0, uH, 1.0) - ro) * inv;
+    vec3 tmin = min(t0, t1), tmax = max(t0, t1);
+    float tn = max(max(tmin.x, tmin.y), max(tmin.z, 0.0));
+    float tf = min(min(tmax.x, tmax.y), tmax.z);
+    if (tf <= tn) { outColor = vec4(0.0); return; }
+    vec3 C = vec3(0.0); float T = 1.0;
+    if (uShowCloud) {
+      float t = tn;
+      for (int i = 0; i < 4096; i++) {
+        if (t >= tf || T < 0.003) break;
+        float dt = min(uDt, tf - t);
+        vec3 q = coord(ro + rd * (t + 0.5 * dt));
+        float g = texture(uVol, q).r;
+        g *= step(uCut, g);
+        if (g > 0.0) {
+          float a = 1.0 - exp(-uSigW * dt * pow(g, uGamma));
+          float l = texture(uLight, q).r;
+          vec3 col = ((1.0 - g) * uLow + g) * (uAmb + (1.0 - uAmb) * l);
+          C += T * a * col; T *= 1.0 - a;
+        }
+        t += dt;
+      }
+    }
+    if (uShowFloor && rd.y < 0.0) {
+      float tg = -ro.y / rd.y; vec3 p = ro + tg * rd;
+      if (p.x >= 0.0 && p.x <= 1.0 && p.z >= 0.0 && p.z <= 1.0 && tg >= tn - 1e-4) {
+        vec3 f = texture(uFloor, p.xz).rgb;
+        if (uFloorShadow && uShowCloud) f *= uAmb + (1.0 - uAmb) * texture(uLight, vec3(p.x, p.z, 1.0)).r;
+        C += T * f; T = 0.0;
+      }
+    }
+    outColor = vec4(C, 1.0 - T);
+  }`;
+  const VS_LINE = `#version 300 es
+  in vec3 aPos; uniform mat4 uMVP; uniform float uH;
+  void main(){ gl_Position = uMVP * vec4(aPos.x, aPos.y * uH, aPos.z, 1.0); }`;
+  const FS_LINE = `#version 300 es
+  precision mediump float; uniform vec4 uColor; out vec4 o; void main(){ o = vec4(uColor.rgb * uColor.a, uColor.a); }`;
+
+  let march, lines;
+  try { march = program(VS_QUAD, FS_MARCH); lines = program(VS_LINE, FS_LINE); }
+  catch (e) { status.textContent = "Shader error: " + e.message; console.error(e); return; }
+
+  const quadVao = gl.createVertexArray();
+  gl.bindVertexArray(quadVao);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const qpos = gl.getAttribLocation(march, "aPos");
+  gl.enableVertexAttribArray(qpos); gl.vertexAttribPointer(qpos, 2, gl.FLOAT, false, 0, 0);
+
+  const E = [[0,0,0,1,0,0],[1,0,0,1,0,1],[1,0,1,0,0,1],[0,0,1,0,0,0],[0,1,0,1,1,0],[1,1,0,1,1,1],[1,1,1,0,1,1],[0,1,1,0,1,0],
+             [0,0,0,0,1,0],[1,0,0,1,1,0],[1,0,1,1,1,1],[0,0,1,0,1,1]].flat();
+  const lineVao = gl.createVertexArray();
+  gl.bindVertexArray(lineVao);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(E), gl.STATIC_DRAW);
+  const lpos = gl.getAttribLocation(lines, "aPos");
+  gl.enableVertexAttribArray(lpos); gl.vertexAttribPointer(lpos, 3, gl.FLOAT, false, 0, 0);
+  gl.bindVertexArray(null);
+
+  const U = {}; for (const n of ["uVol","uLight","uFloor","uCam","uRight","uUp","uFwd","uTanH","uAspect","uH","uSigW","uGamma","uCut","uDt","uAmb","uLow","uShowCloud","uShowFloor","uFloorShadow"]) U[n] = gl.getUniformLocation(march, n);
+  const UL = { mvp: gl.getUniformLocation(lines, "uMVP"), h: gl.getUniformLocation(lines, "uH"), color: gl.getUniformLocation(lines, "uColor") };
+
+  // ---- parameters
+  const P = {};
+  const fmt = { gamma: (v) => v.toFixed(2), sigma: (v) => v.toFixed(0), cut: (v) => v.toFixed(2), exag: (v) => "×" + v.toFixed(1),
+                az: (v) => v.toFixed(0) + "°", el: (v) => v.toFixed(0) + "°" };
+  const TOGGLES = ["showCloud", "showFloor", "floorShadow", "showEdges"];
+  const height = () => P.exag * COLUMN_KM / KM_PER_UNIT_H;            // box height in units of its side
+  function readControls() {
+    for (const k of Object.keys(fmt)) { P[k] = parseFloat($(k).value); $(k + "O").textContent = fmt[k](P[k]); }
+    for (const k of TOGGLES) P[k] = $(k).checked;
+  }
+
+  // sun transmittance: render_volume's top-down pass. Each level passes on exp(-tau) of its
+  // density, then the field shifts with the sun's horizontal offset per level (voxels).
+  function computeLight() {
+    const h = height();
+    const cutG = (P.cut + 4) / 4;
+    const tauLevel = P.sigma * SIDE_CM * (h / L);
+    const zen = (90 - P.el) * Math.PI / 180, az = P.az * Math.PI / 180;
+    const s = Math.tan(zen) * (h / L) * W;                                // voxels per level
+    const sx = -Math.sin(az) * s, sz = Math.cos(az) * s;                  // light travels away from the sun
+    const ix = Math.floor(sx), fx = sx - ix, iz = Math.floor(sz), fz = sz - iz;
+    let T = new Float32Array(H * W).fill(1), N = new Float32Array(H * W);
+    const cl = (v, m) => v < 0 ? 0 : v > m ? m : v;
+    for (let lv = 0; lv < L; lv++) {
+      const off = lv * H * W;
+      for (let i = 0; i < H * W; i++) {
+        light8[off + i] = Math.round(T[i] * 255);
+        let g = gF[off + i]; if (g < cutG) g = 0;
+        if (g > 0) T[i] *= Math.exp(-tauLevel * Math.pow(g, P.gamma));
+      }
+      for (let y = 0; y < H; y++) {
+        const y0 = cl(y - iz - 1, H - 1), y1 = cl(y - iz, H - 1);
+        for (let x = 0; x < W; x++) {
+          const x0 = cl(x - ix - 1, W - 1), x1 = cl(x - ix, W - 1);
+          N[y * W + x] = (T[y0 * W + x0] * fx + T[y0 * W + x1] * (1 - fx)) * fz + (T[y1 * W + x0] * fx + T[y1 * W + x1] * (1 - fx)) * (1 - fz);
+        }
+      }
+      const tmp = T; T = N; N = tmp;
+    }
+    gl.bindTexture(gl.TEXTURE_3D, lightTex);
+    gl.texSubImage3D(gl.TEXTURE_3D, 0, 0, 0, 0, W, H, L, gl.RED, gl.UNSIGNED_BYTE, light8);
+  }
+
+  // ---- camera
+  const cam = { yaw: 0, pitch: 0, dist: 0, tx: 0.5, tz: 0.5 };
+  function setView(name) {
+    if (name === "top") Object.assign(cam, { yaw: 0, pitch: 1.5, dist: 2.1 });
+    else if (name === "side") Object.assign(cam, { yaw: 0, pitch: 0.12, dist: 2.0 });
+    else Object.assign(cam, { yaw: 0.38, pitch: 0.62, dist: 2.15 });
+    Object.assign(cam, { tx: 0.5, tz: 0.5 });
+    redraw();
+  }
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const norm = (a) => { const l = Math.hypot(a[0], a[1], a[2]); return [a[0] / l, a[1] / l, a[2] / l]; };
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  function basis() {
+    const target = [cam.tx, height() / 2, cam.tz];
+    const cp = Math.cos(cam.pitch);
+    const pos = [target[0] + cam.dist * cp * Math.sin(cam.yaw), target[1] + cam.dist * Math.sin(cam.pitch), target[2] + cam.dist * cp * Math.cos(cam.yaw)];
+    const fwd = norm(sub(target, pos));
+    let right = cross(fwd, [0, 1, 0]);
+    right = Math.hypot(...right) < 1e-5 ? [1, 0, 0] : norm(right);
+    const up = cross(right, fwd);
+    return { pos, fwd, right, up };
+  }
+  const FOV = 32 * Math.PI / 180;
+
+  // ---- render
+  let ready = false, interacting = false, pending = false, lightDirty = true, lightTimer = null;
+  function redraw() { if (!pending) { pending = true; requestAnimationFrame(frame); } }
+  function frame() {
+    pending = false;
+    if (!ready) return;
+    if (lightDirty) { computeLight(); lightDirty = false; }
+    const dpr = Math.min(window.devicePixelRatio || 1, 2) * (interacting ? 0.5 : 1);
+    const w = Math.max(1, Math.round(canvas.clientWidth * dpr)), hgt = Math.max(1, Math.round(canvas.clientHeight * dpr));
+    if (canvas.width !== w || canvas.height !== hgt) { canvas.width = w; canvas.height = hgt; }
+    gl.viewport(0, 0, w, hgt);
+    gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+    const { pos, fwd, right, up } = basis();
+    const h = height();
+    gl.useProgram(march);
+    gl.bindVertexArray(quadVao);
+    [[volTex, gl.TEXTURE_3D, "uVol"], [lightTex, gl.TEXTURE_3D, "uLight"], [floorTex, gl.TEXTURE_2D, "uFloor"]]
+      .forEach(([t, tgt, n], i) => { gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(tgt, t); gl.uniform1i(U[n], i); });
+    gl.uniform3fv(U.uCam, pos); gl.uniform3fv(U.uRight, right); gl.uniform3fv(U.uUp, up); gl.uniform3fv(U.uFwd, fwd);
+    gl.uniform1f(U.uTanH, Math.tan(FOV / 2)); gl.uniform1f(U.uAspect, w / hgt);
+    gl.uniform1f(U.uH, h); gl.uniform1f(U.uSigW, P.sigma * SIDE_CM); gl.uniform1f(U.uGamma, P.gamma);
+    gl.uniform1f(U.uCut, (P.cut + 4) / 4 + (P.cut > -4 ? 1e-4 : 0));
+    gl.uniform1f(U.uDt, interacting ? 1 / 220 : 1 / 600);
+    gl.uniform3fv(U.uAmb, AMB); gl.uniform3fv(U.uLow, LOW);
+    gl.uniform1i(U.uShowCloud, P.showCloud); gl.uniform1i(U.uShowFloor, P.showFloor); gl.uniform1i(U.uFloorShadow, P.floorShadow);
+    gl.disable(gl.BLEND);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    if (P.showEdges) {
+      const f = 1 / Math.tan(FOV / 2), n = 0.01, fa = 20, a = w / hgt;
+      const proj = [f / a,0,0,0, 0,f,0,0, 0,0,(fa+n)/(n-fa),-1, 0,0,2*fa*n/(n-fa),0];
+      const z = [-fwd[0], -fwd[1], -fwd[2]];
+      const view = [right[0],up[0],z[0],0, right[1],up[1],z[1],0, right[2],up[2],z[2],0, -dot(right,pos),-dot(up,pos),-dot(z,pos),1];
+      const mvp = new Array(16).fill(0);
+      for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++) for (let k = 0; k < 4; k++) mvp[c * 4 + r] += proj[k * 4 + r] * view[c * 4 + k];
+      gl.useProgram(lines);
+      gl.bindVertexArray(lineVao);
+      gl.uniformMatrix4fv(UL.mvp, false, mvp); gl.uniform1f(UL.h, h);
+      const m = ["230", "236", "245", "0.55"];
+      gl.uniform4f(UL.color, m[0] / 255, m[1] / 255, m[2] / 255, parseFloat(m[3] ?? 1));
+      gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+      gl.drawArrays(gl.LINES, 0, 24);
+    }
+    gl.bindVertexArray(null);
+  }
+
+  // ---- scenes
+  const strip = $("strip");
+  let current = null, loadToken = 0;
+  const go = (row) => { if (location.hash !== "#s" + row) location.hash = "s" + row; else showScene(row); };
+  SCENES.forEach((s) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "thumb"; b.dataset.row = String(s.row);
+    b.setAttribute("aria-label", s.date); b.title = s.date;
+    const im = document.createElement("img"); im.src = `s${s.row}/topview.png`; im.alt = ""; im.decoding = "async";
+    b.appendChild(im);
+    b.addEventListener("click", () => go(s.row));
+    strip.appendChild(b);
+  });
+  const step = (k) => { const i = SCENES.findIndex((x) => x.row === current); go(SCENES[(i + k + SCENES.length) % SCENES.length].row); };
+  window.addEventListener("keydown", (e) => {
+    if (e.target.closest && e.target.closest("input")) return;
+    if (e.key === "ArrowRight") step(1); else if (e.key === "ArrowLeft") step(-1);
+  });
+  async function showScene(row) {
+    const s = SCENES.find((x) => x.row === row) || SCENES[0];
+    if (current === s.row && ready) return;
+    const token = ++loadToken;
+    for (const b of strip.children) b.classList.toggle("on", b.dataset.row === String(s.row));
+    $("date").textContent = s.date;
+    status.hidden = false; status.textContent = "";
+    let d;
+    try { d = await fetchScene(s.row); }
+    catch (e) { console.error(e); if (token === loadToken) { status.classList.add("err"); status.textContent = `Could not load this scene (${e.message})`; } return; }
+    if (token !== loadToken) return;
+    g8.set(d.vol);
+    for (let i = 0; i < g8.length; i++) gF[i] = g8[i] / 255;
+    gl.bindTexture(gl.TEXTURE_3D, volTex);
+    gl.texSubImage3D(gl.TEXTURE_3D, 0, 0, 0, 0, W, H, L, gl.RED, gl.UNSIGNED_BYTE, g8);
+    gl.bindTexture(gl.TEXTURE_2D, floorTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, d.top);
+    current = s.row; ready = true; lightDirty = true;
+    status.hidden = true; status.classList.remove("err");
+    redraw();
+    const i = SCENES.indexOf(s);                                    // warm the neighbours
+    for (const k of [1, -1]) fetchScene(SCENES[(i + k + SCENES.length) % SCENES.length].row).catch(() => {});
+  }
+  const fromHash = () => { const r = parseInt((location.hash.match(/^#s(\d+)$/) || [])[1], 10); return SCENES.some((x) => x.row === r) ? r : SCENES[0].row; };
+  window.addEventListener("hashchange", () => showScene(fromHash()));
+
+  // ---- interaction
+  const stage = $("stage");
+  const ptrs = new Map(); let endTimer = null;
+  function startInteract() { interacting = true; clearTimeout(endTimer); }
+  function endInteract() { clearTimeout(endTimer); endTimer = setTimeout(() => { interacting = false; redraw(); }, 140); }
+  stage.addEventListener("pointerdown", (e) => { stage.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, shift: e.shiftKey }); startInteract(); });
+  stage.addEventListener("pointermove", (e) => {
+    const p = ptrs.get(e.pointerId); if (!p) return;
+    if (ptrs.size === 1) {
+      const dx = e.clientX - p.x, dy = e.clientY - p.y;
+      if (p.shift || e.buttons === 2) {
+        const { right } = basis(); const k = cam.dist * 0.0016;
+        cam.tx -= right[0] * dx * k; cam.tz -= right[2] * dx * k;
+        cam.tx -= Math.sin(cam.yaw) * dy * k; cam.tz -= Math.cos(cam.yaw) * dy * k;
+      } else {
+        cam.yaw -= dx * 0.006;
+        cam.pitch = Math.max(-0.2, Math.min(1.55, cam.pitch + dy * 0.006));
+      }
+    } else if (ptrs.size === 2) {
+      const before = [...ptrs.values()].map((q) => ({ ...q }));
+      const d = Math.hypot(before[0].x - before[1].x, before[0].y - before[1].y);
+      p.x = e.clientX; p.y = e.clientY;
+      const after = [...ptrs.values()];
+      const d2 = Math.hypot(after[0].x - after[1].x, after[0].y - after[1].y);
+      if (d > 0 && d2 > 0) cam.dist = Math.max(0.6, Math.min(6, cam.dist * d / d2));
+    }
+    p.x = e.clientX; p.y = e.clientY;
+    redraw();
+  });
+  const release = (e) => { ptrs.delete(e.pointerId); if (!ptrs.size) endInteract(); };
+  stage.addEventListener("pointerup", release); stage.addEventListener("pointercancel", release);
+  stage.addEventListener("contextmenu", (e) => e.preventDefault());
+  stage.addEventListener("wheel", (e) => { e.preventDefault(); startInteract(); cam.dist = Math.max(0.6, Math.min(6, cam.dist * Math.exp(e.deltaY * 0.0012))); redraw(); endInteract(); }, { passive: false });
+
+  const lightKeys = new Set(["gamma", "sigma", "cut", "exag", "az", "el"]);
+  for (const id of [...Object.keys(fmt), ...TOGGLES]) {
+    $(id).addEventListener("input", () => {
+      readControls();
+      if (lightKeys.has(id)) {
+        startInteract();
+        clearTimeout(lightTimer);
+        lightTimer = setTimeout(() => { lightDirty = true; redraw(); endInteract(); }, 60);
+      }
+      redraw();
+    });
+  }
+  for (const b of document.querySelectorAll("[data-view]")) b.addEventListener("click", () => setView(b.dataset.view));
+  const panel = $("panel"), gear = $("gear");
+  gear.addEventListener("click", () => { const open = panel.hidden; panel.hidden = !open; gear.setAttribute("aria-expanded", String(open)); });
+  new ResizeObserver(() => redraw()).observe(stage);
+
+  readControls();
+  setView("teaser");
+  showScene(fromHash());
+})();
+</script>
+</body>
+</html>
